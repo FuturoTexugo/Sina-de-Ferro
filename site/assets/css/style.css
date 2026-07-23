@@ -1,0 +1,385 @@
+/* ==========================================================================
+   SINA DE FERRO — tokens
+   Direção: ferro oxidado sobre um mundo que está morrendo.
+   Fundo: aço/ferro escuro. Acento: cobre oxidado (não terracota clichê).
+   Um segundo acento, "ruína", em vermelho seco, reservado só ao medidor.
+   ========================================================================== */
+:root {
+  --bg:          #10131a;
+  --bg-raised:   #171b23;
+  --bg-panel:    #1b1f28;
+  --line:        #322a24;
+  --line-soft:   #23262e;
+
+  --rust:        #a1512e;
+  --rust-bright: #c96a3c;
+  --brass:       #b89a5d;
+  --ruin:        #7a2530;
+  --ruin-bright: #a53a3a;
+
+  --paper:       #d9d2c1;
+  --paper-dim:   #8d8878;
+  --paper-faint: #5f5c52;
+
+  --font-display: 'Cinzel', serif;
+  --font-body: 'Source Serif 4', 'Georgia', serif;
+  --font-mono: 'JetBrains Mono', monospace;
+
+  --sidebar-w: 280px;
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  padding: 0;
+  background: var(--bg);
+  color: var(--paper);
+  font-family: var(--font-body);
+  min-height: 100vh;
+}
+
+::selection { background: var(--rust); color: #0d0f13; }
+
+a { color: inherit; text-decoration: none; }
+
+/* leve textura metálica no fundo geral, via gradientes repetidos (sem imagens) */
+body {
+  background-image:
+    repeating-linear-gradient(115deg, rgba(255,255,255,0.015) 0px, rgba(255,255,255,0.015) 1px, transparent 1px, transparent 3px),
+    radial-gradient(ellipse at top left, #171c25 0%, var(--bg) 55%);
+}
+
+/* ==========================================================================
+   LAYOUT
+   ========================================================================== */
+.app {
+  display: flex;
+  min-height: 100vh;
+}
+
+/* ---------- Sidebar (placa de ferro) ---------- */
+.sidebar {
+  width: var(--sidebar-w);
+  flex-shrink: 0;
+  background: var(--bg-panel);
+  border-right: 1px solid var(--line);
+  display: flex;
+  flex-direction: column;
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  overflow-y: auto;
+}
+
+.sidebar-brand {
+  padding: 28px 22px 18px;
+  border-bottom: 1px solid var(--line);
+  position: relative;
+}
+
+.sidebar-brand::after {
+  /* rebite decorativo, como uma placa aparafusada */
+  content: "";
+  position: absolute;
+  top: 14px; right: 16px;
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 35%, #d8c48a, var(--brass) 60%, #4a3d20 100%);
+  box-shadow: 0 0 0 2px rgba(0,0,0,0.35);
+}
+
+.sidebar-brand .eyebrow {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--rust-bright);
+  margin-bottom: 6px;
+}
+
+.sidebar-brand h1 {
+  font-family: var(--font-display);
+  font-size: 22px;
+  letter-spacing: 0.03em;
+  margin: 0;
+  color: var(--paper);
+  line-height: 1.25;
+}
+
+.nav {
+  padding: 10px 10px 24px;
+  flex: 1;
+}
+
+.nav-group {
+  margin-top: 18px;
+}
+
+.nav-group-label {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--paper-faint);
+  padding: 0 12px 6px;
+}
+
+.nav-link {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  margin: 1px 0;
+  border-radius: 3px;
+  font-size: 14px;
+  color: var(--paper-dim);
+  border-left: 2px solid transparent;
+  cursor: pointer;
+}
+
+.nav-link:hover {
+  background: rgba(255,255,255,0.03);
+  color: var(--paper);
+}
+
+.nav-link.is-active {
+  color: var(--rust-bright);
+  border-left-color: var(--rust);
+  background: rgba(161, 81, 46, 0.08);
+}
+
+.nav-link .marca {
+  width: 4px; height: 4px;
+  border-radius: 50%;
+  background: currentColor;
+  opacity: 0.55;
+  flex-shrink: 0;
+}
+
+/* ---------- Main ---------- */
+.main {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  padding: 18px 40px;
+  border-bottom: 1px solid var(--line);
+  background: linear-gradient(180deg, var(--bg-raised), var(--bg));
+  position: sticky;
+  top: 0;
+  z-index: 5;
+}
+
+.topbar-title {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--paper-faint);
+}
+
+.menu-toggle {
+  display: none;
+  background: none;
+  border: 1px solid var(--line);
+  color: var(--paper);
+  font-family: var(--font-mono);
+  padding: 6px 10px;
+  border-radius: 3px;
+  cursor: pointer;
+}
+
+/* ---------- Medidor de Ruína (elemento assinatura) ---------- */
+.ruina {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-shrink: 0;
+}
+
+.ruina-label {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ruin-bright);
+  white-space: nowrap;
+}
+
+.ruina-track {
+  position: relative;
+  width: 160px;
+  height: 10px;
+  background: var(--bg-raised);
+  clip-path: polygon(0 20%, 3% 0, 97% 0, 100% 20%, 100% 80%, 97% 100%, 3% 100%, 0 80%);
+  border: 1px solid var(--line);
+  overflow: hidden;
+}
+
+.ruina-fill {
+  position: absolute;
+  inset: 0;
+  width: var(--ruina-pct, 22%);
+  background: linear-gradient(90deg, var(--brass), var(--rust) 60%, var(--ruin-bright));
+  /* borda "trincada" no limite do preenchimento */
+  clip-path: polygon(
+    0 0, 92% 0, 96% 30%, 100% 15%, 100% 55%, 94% 45%, 97% 100%, 0 100%
+  );
+}
+
+.sina-pips {
+  display: flex;
+  gap: 4px;
+}
+.sina-pips span {
+  width: 7px; height: 7px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 35%, #eadfb8, var(--brass) 55%, #4a3d20 100%);
+  box-shadow: 0 0 0 1px rgba(0,0,0,0.4);
+}
+
+/* ---------- Área de conteúdo ---------- */
+.content-wrap {
+  flex: 1;
+  padding: 44px 48px 90px;
+  max-width: 880px;
+}
+
+#conteudo {
+  animation: surgir 0.25s ease;
+}
+
+@keyframes surgir {
+  from { opacity: 0; transform: translateY(4px); }
+  to   { opacity: 1; transform: none; }
+}
+
+/* Tipografia do markdown renderizado */
+#conteudo h1, #conteudo h2, #conteudo h3 {
+  font-family: var(--font-display);
+  color: var(--paper);
+  letter-spacing: 0.02em;
+  margin-top: 1.6em;
+}
+
+#conteudo h1 {
+  font-size: 30px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--line);
+  margin-top: 0;
+}
+
+#conteudo h2 {
+  font-size: 20px;
+  color: var(--rust-bright);
+  text-transform: uppercase;
+  font-size: 16px;
+  letter-spacing: 0.08em;
+}
+
+#conteudo h3 {
+  font-size: 15px;
+  color: var(--brass);
+}
+
+#conteudo p, #conteudo li {
+  font-size: 16px;
+  line-height: 1.7;
+  color: var(--paper);
+}
+
+#conteudo strong { color: var(--rust-bright); font-weight: 700; }
+
+#conteudo blockquote {
+  border-left: 2px solid var(--rust);
+  margin: 1.2em 0;
+  padding: 4px 18px;
+  color: var(--paper-dim);
+  font-style: italic;
+  background: rgba(255,255,255,0.02);
+}
+
+#conteudo hr {
+  border: none;
+  height: 1px;
+  margin: 2.4em 0;
+  background: repeating-linear-gradient(90deg, var(--line) 0 6px, transparent 6px 10px);
+}
+
+#conteudo table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1.2em 0;
+  font-size: 14px;
+}
+
+#conteudo th, #conteudo td {
+  border: 1px solid var(--line);
+  padding: 8px 10px;
+  text-align: left;
+}
+
+#conteudo th {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--brass);
+  background: var(--bg-raised);
+}
+
+#conteudo code {
+  font-family: var(--font-mono);
+  background: var(--bg-raised);
+  padding: 1px 5px;
+  border-radius: 2px;
+  font-size: 0.9em;
+  color: var(--rust-bright);
+}
+
+.estado {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  color: var(--paper-faint);
+  padding: 40px 0;
+}
+
+/* ==========================================================================
+   RESPONSIVO
+   ========================================================================== */
+@media (max-width: 860px) {
+  .sidebar {
+    position: fixed;
+    left: 0; top: 0;
+    height: 100vh;
+    transform: translateX(-100%);
+    transition: transform 0.2s ease;
+    z-index: 20;
+  }
+  .sidebar.is-open { transform: translateX(0); }
+
+  .menu-toggle { display: inline-block; }
+
+  .content-wrap { padding: 28px 20px 70px; }
+  .topbar { padding: 14px 18px; }
+  .ruina-track { width: 100px; }
+}
+
+/* Acessibilidade: foco visível */
+a:focus-visible, button:focus-visible, .nav-link:focus-visible {
+  outline: 2px solid var(--rust-bright);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #conteudo, .sidebar { animation: none !important; transition: none !important; }
+}
