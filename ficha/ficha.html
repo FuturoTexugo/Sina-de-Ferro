@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<title>Ficha — Sina de Ferro</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600&family=Source+Serif+4:wght@400;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #10131a; --bg-raised:#171b23; --line:#322a24;
+    --rust:#a1512e; --rust-bright:#c96a3c; --brass:#b89a5d;
+    --paper:#d9d2c1; --paper-dim:#8d8878;
+    --font-display:'Cinzel',serif; --font-body:'Source Serif 4',serif; --font-mono:'JetBrains Mono',monospace;
+  }
+  * { box-sizing: border-box; }
+  body { margin:0; background:transparent; color:var(--paper); font-family:var(--font-body); padding: 4px 4px 24px; }
+  h2 { font-family: var(--font-display); font-size: 18px; color: var(--rust-bright); text-transform: uppercase; letter-spacing: 0.06em; border-bottom: 1px solid var(--line); padding-bottom: 8px; }
+  .grid { display:grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin-bottom: 24px; }
+  .atributo { background: var(--bg-raised); border:1px solid var(--line); border-radius: 4px; padding: 10px 12px; }
+  .atributo label { display:block; font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--paper-dim); margin-bottom: 6px; }
+  .atributo input {
+    width: 100%; background: var(--bg); border: 1px solid var(--line); color: var(--paper);
+    font-family: var(--font-mono); font-size: 18px; padding: 6px 8px; border-radius: 3px;
+  }
+  .atributo .bonus-par { font-family: var(--font-mono); font-size: 11px; color: var(--brass); margin-top: 6px; min-height: 14px; }
+
+  .resumo { display:grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px; }
+  .valor { background: var(--bg-raised); border:1px solid var(--line); border-radius:4px; padding: 12px; text-align:center; }
+  .valor .num { font-family: var(--font-mono); font-size: 26px; color: var(--rust-bright); }
+  .valor .lbl { font-family: var(--font-mono); font-size: 10px; letter-spacing:0.08em; text-transform: uppercase; color: var(--paper-dim); margin-top: 4px; }
+
+  .campo-nivel { display:flex; flex-wrap: wrap; align-items:center; gap: 10px; margin-bottom: 20px; }
+  .campo-nivel label { font-family: var(--font-mono); font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--paper-dim); }
+  .campo-nivel input { width: 70px; background: var(--bg-raised); border:1px solid var(--line); color:var(--paper); font-family: var(--font-mono); padding: 6px 8px; border-radius: 3px; }
+
+  .nota { font-family: var(--font-mono); font-size: 11px; color: var(--paper-dim); margin-top: 20px; }
+</style>
+</head>
+<body>
+
+  <div class="campo-nivel">
+    <label for="nivel">Nível</label>
+    <input type="number" id="nivel" min="1" value="1">
+    <label for="vidaBase">Vida base (nv.1)</label>
+    <input type="number" id="vidaBase" min="0" value="8">
+    <label for="ganhoVida">Ganho de PV/nível</label>
+    <input type="number" id="ganhoVida" min="0" value="6">
+    <label for="manaBase">Mana base (nv.1)</label>
+    <input type="number" id="manaBase" min="0" value="4">
+    <label for="ganhoMana">Ganho de Mana/nível</label>
+    <input type="number" id="ganhoMana" min="0" value="4">
+  </div>
+
+  <h2>Atributos</h2>
+  <div class="grid" id="grid-atributos"></div>
+
+  <h2>Valores derivados</h2>
+  <div class="resumo">
+    <div class="valor"><div class="num" id="v-pv">—</div><div class="lbl">PV</div></div>
+    <div class="valor"><div class="num" id="v-mana">—</div><div class="lbl">Mana</div></div>
+    <div class="valor"><div class="num" id="v-defesa">—</div><div class="lbl">Defesa (base)</div></div>
+    <div class="valor"><div class="num" id="v-iniciativa">—</div><div class="lbl">Iniciativa</div></div>
+    <div class="valor"><div class="num" id="v-inventario">—</div><div class="lbl">Espaços de inventário</div></div>
+    <div class="valor"><div class="num" id="v-limite">—</div><div class="lbl">Limite de atributo</div></div>
+    <div class="valor"><div class="num" id="v-rdFisica">—</div><div class="lbl">RD Física (Força)</div></div>
+    <div class="valor"><div class="num" id="v-rdMagica">—</div><div class="lbl">RD Mágica (Vontade)</div></div>
+  </div>
+
+  <h2>Reações (usam a Ação Reativa)</h2>
+  <div class="resumo">
+    <div class="valor"><div class="num" id="v-esquivar">—</div><div class="lbl">Esquivar (bônus na Defesa)</div></div>
+    <div class="valor"><div class="num" id="v-bloquear">—</div><div class="lbl">Bloquear (bônus na RD)</div></div>
+  </div>
+
+  <p class="nota">
+    Cálculos conforme Núcleo, seções 1–2 e 6.1–6.2. Defesa é sempre <strong>10</strong> + armadura/classe (adicione
+    isso manualmente); nenhum atributo altera a Defesa base — atributos só entram nas Reações abaixo, no momento
+    de um ataque específico. Bônus de talento (inventário/adornos) fica a cargo do jogador.
+  </p>
+
+<script>
+  const ATRIBUTOS = [
+    { chave: "forca", nome: "Força" },
+    { chave: "vigor", nome: "Vigor" },
+    { chave: "velocidade", nome: "Velocidade" },
+    { chave: "atencao", nome: "Atenção" },
+    { chave: "vontade", nome: "Vontade" },
+    { chave: "intelecto", nome: "Intelecto" },
+    { chave: "talento", nome: "Talento" },
+  ];
+
+  const grid = document.getElementById("grid-atributos");
+  grid.innerHTML = ATRIBUTOS.map(a => `
+    <div class="atributo">
+      <label for="attr-${a.chave}">${a.nome}</label>
+      <input type="number" id="attr-${a.chave}" min="1" value="1">
+      <div class="bonus-par" id="par-${a.chave}"></div>
+    </div>
+  `).join("");
+
+  // Bônus "em valores pares" é ACUMULATIVO: soma +1 a cada patamar par
+  // (2, 4, 6, 8...), ou seja, floor(atributo / 2) — não um flag binário.
+  const BONUS_PAR_SUFIXO = {
+    forca: "Redução de Dano Física",
+    vigor: "PV extra por nível",
+    velocidade: "espaço(s) de movimento",
+    atencao: "em qualquer Reação",
+    vontade: "Redução de Dano Mágica",
+    intelecto: "Mana extra por nível",
+    talento: "adorno(s)",
+  };
+
+  function bonusPar(valorAtributo) {
+    return Math.floor(valorAtributo / 2);
+  }
+
+  function valor(id) { return Number(document.getElementById(id).value) || 0; }
+
+  function recalcular() {
+    const nivel = valor("nivel");
+    const vidaBase = valor("vidaBase");
+    const ganhoVida = valor("ganhoVida");
+    const manaBase = valor("manaBase");
+    const ganhoMana = valor("ganhoMana");
+
+    const attrs = {};
+    ATRIBUTOS.forEach(a => attrs[a.chave] = valor("attr-" + a.chave));
+
+    ATRIBUTOS.forEach(a => {
+      const bonus = bonusPar(attrs[a.chave]);
+      document.getElementById("par-" + a.chave).textContent = `+${bonus} ${BONUS_PAR_SUFIXO[a.chave]}`;
+    });
+
+    const bonusVigor = bonusPar(attrs.vigor);
+    const bonusIntelecto = bonusPar(attrs.intelecto);
+
+    // Nível 1 = só a Vida/Mana base. A partir daí, cada nível soma o ganho
+    // fixo + o bônus par do atributo — o bônus entra no GANHO por nível,
+    // não é somado uma única vez ao total.
+    const niveisGanhos = nivel - 1;
+    const pv = vidaBase + niveisGanhos * (ganhoVida + bonusVigor);
+    const mana = manaBase + niveisGanhos * (ganhoMana + bonusIntelecto);
+
+    // Defesa é SEMPRE 10 — nenhum atributo soma à Defesa base (só armadura/
+    // itens/classe, que ficam de fora deste mini-app). Atributos só entram
+    // no momento de uma Reação (Esquivar/Bloquear), nunca de forma permanente.
+    const defesa = 10;
+    const iniciativa = 10 + attrs.velocidade;
+    const inventario = 6; // + bônus de talento, definido manualmente
+    const limite = 4 + Math.floor(nivel / 2);
+
+    // RD também é acumulativa (floor), não binária: Força/Vontade 3 -> 1, 4 -> 2...
+    const rdFisica = bonusPar(attrs.forca);
+    const rdMagica = bonusPar(attrs.vontade);
+
+    // Reações: todo mundo soma metade de Atenção (arredondado pra baixo),
+    // igual ao bônus par de Atenção, além do atributo específico da reação.
+    const bonusAtencao = bonusPar(attrs.atencao);
+    const esquivar = attrs.velocidade + bonusAtencao; // soma à Defesa contra o ataque
+    const bloquear = attrs.vigor + bonusAtencao;       // soma à Redução de Dano do ataque
+
+    document.getElementById("v-pv").textContent = pv;
+    document.getElementById("v-mana").textContent = mana;
+    document.getElementById("v-defesa").textContent = defesa;
+    document.getElementById("v-iniciativa").textContent = iniciativa;
+    document.getElementById("v-inventario").textContent = inventario;
+    document.getElementById("v-limite").textContent = limite;
+    document.getElementById("v-rdFisica").textContent = rdFisica;
+    document.getElementById("v-rdMagica").textContent = rdMagica;
+    document.getElementById("v-esquivar").textContent = "+" + esquivar;
+    document.getElementById("v-bloquear").textContent = "+" + bloquear;
+  }
+
+  document.body.addEventListener("input", recalcular);
+  recalcular();
+</script>
+</body>
+</html>
