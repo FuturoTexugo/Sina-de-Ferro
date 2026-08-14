@@ -1,0 +1,82 @@
+[
+  {
+    "titulo": "Bestiário — Chefes",
+    "categoria": "Bestiario",
+    "caminho": "conteudo/Bestiario/_Chefes_.md"
+  },
+  {
+    "titulo": "Bestiário — Seguidores da Ruína",
+    "categoria": "Bestiario",
+    "caminho": "conteudo/Bestiario/_Seguidores da Ruina_.md"
+  },
+  {
+    "titulo": "Bestiário — Animais",
+    "categoria": "Bestiario",
+    "caminho": "conteudo/Bestiario/Animais.md"
+  },
+  {
+    "titulo": "Bestiário — Bandidos",
+    "categoria": "Bestiario",
+    "caminho": "conteudo/Bestiario/Bandidos.md"
+  },
+  {
+    "titulo": "Bestiário — Monstros",
+    "categoria": "Bestiario",
+    "caminho": "conteudo/Bestiario/Monstros.md"
+  },
+  {
+    "titulo": "Bestiário — Mortos-vivos",
+    "categoria": "Bestiario",
+    "caminho": "conteudo/Bestiario/Mortos-vivos.md"
+  },
+  {
+    "titulo": "Bestiário — Povos Selvagens",
+    "categoria": "Bestiario",
+    "caminho": "conteudo/Bestiario/Povos selvagens.md"
+  },
+  {
+    "titulo": "Bestiário — Reinos",
+    "categoria": "Bestiario",
+    "caminho": "conteudo/Bestiario/Reinos.md"
+  },
+  {
+    "titulo": "Classes",
+    "categoria": "Geral",
+    "caminho": "conteudo/Classes.md"
+  },
+  {
+    "titulo": "Raças",
+    "categoria": "Geral",
+    "caminho": "conteudo/Racas.md"
+  },
+  {
+    "titulo": "Santuários",
+    "categoria": "Geral",
+    "caminho": "conteudo/Santuarios.md"
+  },
+  {
+    "titulo": "Armaduras",
+    "categoria": "Itens",
+    "caminho": "conteudo/Itens/Armaduras.md"
+  },
+  {
+    "titulo": "Armas",
+    "categoria": "Itens",
+    "caminho": "conteudo/Itens/Armas.md"
+  },
+  {
+    "titulo": "Talentos — Conjurador",
+    "categoria": "Talentos",
+    "caminho": "conteudo/Talentos/Conjurador.md"
+  },
+  {
+    "titulo": "Talentos — Lutador",
+    "categoria": "Talentos",
+    "caminho": "conteudo/Talentos/Lutador.md"
+  },
+  {
+    "titulo": "Talentos — Rastreador",
+    "categoria": "Talentos",
+    "caminho": "conteudo/Talentos/Rastreador.md"
+  }
+]

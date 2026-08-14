@@ -1,0 +1,695 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<title>Ficha — Sina de Ferro</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&family=Source+Serif+4:wght@400;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #10131a; --bg-raised:#171b23; --bg-panel:#1b1f28; --line:#322a24; --line-soft:#23262e;
+    --rust:#a1512e; --rust-bright:#c96a3c; --brass:#b89a5d;
+    --paper:#d9d2c1; --paper-dim:#8d8878; --paper-faint:#5f5c52;
+    --font-display:'Cinzel',serif; --font-body:'Source Serif 4',serif; --font-mono:'JetBrains Mono',monospace;
+  }
+
+  * { scrollbar-width: thin; scrollbar-color: var(--rust) var(--bg-raised); }
+    ::-webkit-scrollbar { width: 10px; height: 10px; }
+    ::-webkit-scrollbar-track { background: var(--bg-raised); }
+    ::-webkit-scrollbar-thumb { background: var(--rust); border-radius: 6px; border: 2px solid var(--bg-raised); }
+    ::-webkit-scrollbar-thumb:hover { background: var(--rust-bright); }
+
+  * { box-sizing: border-box; }
+  body { margin:0; background:transparent; color:var(--paper); font-family:var(--font-body); padding: 4px 4px 32px; }
+
+  h2 { font-family: var(--font-display); font-size: 16px; color: var(--rust-bright); text-transform: uppercase; letter-spacing: 0.06em; border-bottom: 1px solid var(--line); padding-bottom: 8px; margin: 30px 0 14px; }
+  h2:first-of-type { margin-top: 0; }
+  h3 { font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--brass); margin: 0 0 10px; }
+
+  input[type="text"], input[type="number"], textarea {
+    background: var(--bg); border: 1px solid var(--line); color: var(--paper);
+    font-family: var(--font-mono); border-radius: 3px; padding: 6px 8px; font-size: 14px; width: 100%;
+  }
+  input:focus, textarea:focus { outline: 1px solid var(--rust); }
+  label.campo-label { display:block; font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--paper-dim); margin-bottom: 6px; }
+
+  /* ---------- Cabeçalho da ficha ---------- */
+  .ficha-header {
+    background: var(--bg-panel); border: 1px solid var(--line); border-radius: 6px;
+    padding: 18px 20px; margin-bottom: 22px;
+  }
+  #nome {
+    width: 100%; background: transparent; border: none; border-bottom: 1px solid var(--line);
+    font-family: var(--font-display); font-size: 26px; color: var(--paper); padding: 4px 2px 10px;
+    letter-spacing: 0.02em;
+  }
+  #nome::placeholder { color: var(--paper-faint); }
+  .header-sub { display:grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px; margin-top: 14px; }
+
+  /* ---------- Grids genéricos ---------- */
+  .grid { display:grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin-bottom: 24px; }
+  .atributo { background: var(--bg-raised); border:1px solid var(--line); border-radius: 4px; padding: 10px 12px; }
+  .atributo input {
+    width: 100%; background: var(--bg); border: 1px solid var(--line); color: var(--paper);
+    font-family: var(--font-mono); font-size: 18px; padding: 6px 8px; border-radius: 3px;
+  }
+  .atributo .bonus-par { font-family: var(--font-mono); font-size: 11px; color: var(--brass); margin-top: 6px; min-height: 14px; }
+
+  .resumo { display:grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px; }
+  .valor { background: var(--bg-raised); border:1px solid var(--line); border-radius:4px; padding: 12px; text-align:center; }
+  .valor .num { font-family: var(--font-mono); font-size: 26px; color: var(--rust-bright); }
+  .valor .lbl { font-family: var(--font-mono); font-size: 10px; letter-spacing:0.08em; text-transform: uppercase; color: var(--paper-dim); margin-top: 4px; }
+
+  .campo-nivel { display:flex; flex-wrap: wrap; align-items:center; gap: 10px; margin-bottom: 10px; }
+  .campo-nivel label { font-family: var(--font-mono); font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--paper-dim); }
+  .campo-nivel input[type="number"] { width: 70px; }
+  .campo-nivel .fixo { font-family: var(--font-mono); font-size: 11px; color: var(--paper-dim); }
+  .campo-nivel .fixo strong { color: var(--brass); }
+
+  /* ---------- Painéis (mesmo padrão do rastreador de Ruína) ---------- */
+  .painel {
+    background: var(--bg-panel); border: 1px solid var(--line); border-radius: 6px;
+    padding: 16px 20px; margin-bottom: 14px;
+  }
+  .painel-flex { display:flex; align-items:center; gap: 18px; flex-wrap: wrap; }
+
+  /* ---------- Barra XP ---------- */
+  .barra-track {
+    position: relative; width: 100%; height: 12px; margin-top: 8px;
+    background: var(--bg-raised); border: 1px solid var(--line); border-radius: 6px; overflow: hidden;
+  }
+  .barra-fill {
+    position: absolute; inset: 0; width: 0%;
+    background: linear-gradient(90deg, var(--brass), var(--rust-bright));
+    transition: width 0.4s ease;
+  }
+  .xp-legenda { font-family: var(--font-mono); font-size: 11.5px; color: var(--paper-dim); margin-top: 6px; }
+  .xp-legenda strong { color: var(--brass); }
+
+  /* ---------- Contadores com stepper (PV / Mana / Coroas / Provisões) ---------- */
+  .contador {
+    background: var(--bg-raised); border:1px solid var(--line); border-radius:4px; padding: 12px 14px;
+    display:flex; flex-direction:column; gap: 8px; text-align:center;
+  }
+  .contador .lbl { font-family: var(--font-mono); font-size: 10px; letter-spacing:0.08em; text-transform: uppercase; color: var(--paper-dim); }
+  .contador-linha { display:flex; align-items:center; justify-content:center; gap: 8px; }
+  .contador-linha input[type="number"] { width: 58px; text-align:center; font-size: 16px; }
+  .contador-linha .sep { color: var(--paper-faint); font-family: var(--font-mono); }
+  .contador-linha .max { font-family: var(--font-mono); font-size: 16px; color: var(--paper-dim); min-width: 26px; }
+  .stepper-btns { display:flex; gap: 6px; }
+  .stepper-btns button, .steppers button {
+    font-family: var(--font-mono); font-size: 14px; width: 28px; height: 28px;
+    border-radius: 4px; border: 1px solid var(--line); background: var(--bg); color: var(--paper); cursor: pointer;
+  }
+  .stepper-btns button:hover, .steppers button:hover { background: var(--rust); border-color: var(--rust); }
+
+  /* ---------- Pontos de Sina (pips) ---------- */
+  .pips { display: flex; gap: 8px; justify-content:center; }
+  .pip {
+    width: 20px; height: 20px; border-radius: 50%; cursor: pointer;
+    border: 1.5px solid var(--brass); background: transparent;
+  }
+  .pip.on { background: var(--brass); box-shadow: 0 0 8px rgba(184,154,93,0.5); }
+
+  /* ---------- Recursos (Coroas / Provisões) ---------- */
+  .recursos-grid { display:grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 14px; }
+  .recurso-linha { display:flex; align-items:center; gap: 10px; }
+  .recurso-linha input[type="number"] { width: 90px; text-align:center; font-size: 16px; }
+
+  /* ---------- Equipamento ---------- */
+  .equip-grid { display:grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 12px; }
+  .equip-slot { background: var(--bg-raised); border:1px solid var(--line); border-radius:4px; padding: 10px 12px; }
+  .adornos-wrap { margin-top: 14px; }
+  .adornos-grid { display:grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; margin-top: 8px; }
+
+  /* ---------- Inventário ---------- */
+  .inventario-capacidade { font-family: var(--font-mono); font-size: 12px; color: var(--paper-dim); margin-bottom: 10px; }
+  .inventario-capacidade strong { color: var(--brass); }
+  .inventario-capacidade.cheio strong { color: var(--rust-bright); }
+  .inventario-add { display:flex; gap: 8px; margin-bottom: 12px; }
+  .inventario-add input { flex:1; }
+  .inventario-add button {
+    font-family: var(--font-mono); font-size: 12px; padding: 0 16px; border-radius: 4px; border: 1px solid var(--line);
+    background: var(--rust); color: var(--paper); cursor: pointer; white-space: nowrap;
+  }
+  .inventario-add button:hover { filter: brightness(1.12); }
+  .inventario-lista { list-style:none; margin:0; padding:0; }
+  .inventario-lista li {
+    display:flex; align-items:center; justify-content:space-between; gap: 10px;
+    padding: 8px 10px; border-bottom: 1px solid var(--line-soft); font-size: 14px;
+  }
+  .inventario-lista li:last-child { border-bottom: none; }
+  .inventario-lista .vazio { color: var(--paper-faint); font-style: italic; font-family: var(--font-mono); font-size: 12px; }
+  .btn-remover {
+    font-family: var(--font-mono); font-size: 11px; color: var(--paper-faint);
+    background: none; border: 1px solid var(--line); border-radius: 3px; padding: 4px 8px; cursor: pointer; flex-shrink:0;
+  }
+  .btn-remover:hover { color: var(--ruin-bright, #a53a3a); border-color: #a53a3a; }
+
+  /* ---------- Santuário ---------- */
+  .santuario-grid { display:grid; grid-template-columns: 1fr 2fr; gap: 14px; }
+  @media (max-width: 520px) { .santuario-grid { grid-template-columns: 1fr; } }
+
+  /* ---------- Condições ---------- */
+  .condicoes-add { display:flex; gap: 8px; margin-bottom: 10px; }
+  .condicoes-add input { flex:1; }
+  .condicoes-add button {
+    font-family: var(--font-mono); font-size: 12px; padding: 0 16px; border-radius: 4px; border: 1px solid var(--line);
+    background: var(--bg-raised); color: var(--paper); cursor: pointer; white-space: nowrap;
+  }
+  .condicoes-add button:hover { background: var(--rust); border-color: var(--rust); }
+  .condicoes-lista { display:flex; flex-wrap:wrap; gap: 8px; }
+  .condicao-tag {
+    display:flex; align-items:center; gap: 8px; background: rgba(161,81,46,0.16);
+    border: 1px solid var(--rust); border-radius: 20px; padding: 5px 6px 5px 12px;
+    font-family: var(--font-mono); font-size: 12px; color: var(--paper);
+  }
+  .condicao-tag button {
+    background:none; border:none; color: var(--paper-dim); cursor:pointer; font-size: 13px;
+    width: 18px; height: 18px; border-radius: 50%; line-height: 1;
+  }
+  .condicao-tag button:hover { color: var(--rust-bright); }
+  .condicoes-vazio { color: var(--paper-faint); font-style: italic; font-family: var(--font-mono); font-size: 12px; }
+
+  .nota { font-family: var(--font-mono); font-size: 11px; color: var(--paper-dim); margin-top: 20px; line-height: 1.6; }
+
+  .rodape-acoes { text-align: right; margin-top: 26px; }
+  button.reset {
+    font-family: var(--font-mono); font-size: 11px; color: var(--paper-faint);
+    background: none; border: 1px solid var(--line); border-radius: 3px; padding: 6px 12px; cursor: pointer;
+  }
+  button.reset:hover { color: #a53a3a; border-color: #a53a3a; }
+</style>
+</head>
+<body>
+
+  <!-- ============ CABEÇALHO ============ -->
+  <div class="ficha-header">
+    <input type="text" id="nome" placeholder="Nome do Personagem">
+    <div class="header-sub">
+      <div>
+        <label class="campo-label" for="jogador">Jogador(a)</label>
+        <input type="text" id="jogador" placeholder="—">
+      </div>
+      <div>
+        <label class="campo-label" for="raca">Raça</label>
+        <input type="text" id="raca" placeholder="—">
+      </div>
+      <div>
+        <label class="campo-label" for="classe">Classe</label>
+        <input type="text" id="classe" placeholder="—">
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ NÍVEL E EXPERIÊNCIA ============ -->
+  <div class="campo-nivel">
+    <label for="nivel">Nível</label>
+    <input type="number" id="nivel" min="1" max="20" value="1">
+    <span class="fixo">Vida base (nv.1): <strong>8</strong> · Ganho de PV/nível: <strong>6</strong> · Mana base (nv.1): <strong>4</strong> · Ganho de Mana/nível: <strong>4</strong></span>
+  </div>
+  <div class="painel">
+    <div class="painel-flex" style="justify-content:space-between;">
+      <div>
+        <label class="campo-label" for="xpAtual">XP atual (neste nível)</label>
+        <input type="number" id="xpAtual" min="0" value="0" style="width:110px;">
+      </div>
+      <div class="xp-legenda" id="xpLegenda" style="text-align:right;">—</div>
+    </div>
+    <div class="barra-track"><div class="barra-fill" id="xpBarraFill"></div></div>
+  </div>
+
+  <h2>Atributos</h2>
+  <div class="grid" id="grid-atributos"></div>
+
+  <h2>Vida, Mana e Sina</h2>
+  <div class="resumo">
+    <div class="contador">
+      <div class="lbl">PV</div>
+      <div class="contador-linha">
+        <input type="number" id="pvAtual" value="0">
+        <span class="sep">/</span>
+        <span class="max" id="pvMax">—</span>
+      </div>
+      <div class="stepper-btns">
+        <button data-alvo="pvAtual" data-delta="-1">−</button>
+        <button data-alvo="pvAtual" data-delta="1">+</button>
+      </div>
+    </div>
+    <div class="contador">
+      <div class="lbl">Mana</div>
+      <div class="contador-linha">
+        <input type="number" id="manaAtual" value="0">
+        <span class="sep">/</span>
+        <span class="max" id="manaMax">—</span>
+      </div>
+      <div class="stepper-btns">
+        <button data-alvo="manaAtual" data-delta="-1">−</button>
+        <button data-alvo="manaAtual" data-delta="1">+</button>
+      </div>
+    </div>
+    <div class="contador">
+      <div class="lbl">Pontos de Sina (máx. 3)</div>
+      <div class="pips" id="pipsSina">
+        <span class="pip" data-i="0"></span><span class="pip" data-i="1"></span><span class="pip" data-i="2"></span>
+      </div>
+      <div style="font-family:var(--font-mono); font-size:11px; color:var(--paper-dim);">clique pra marcar/gastar</div>
+    </div>
+  </div>
+
+  <h2>Combate</h2>
+  <div class="grid">
+    <div class="atributo">
+      <label class="campo-label" for="bonusDefesa">Bônus de armadura (Defesa)</label>
+      <input type="number" id="bonusDefesa" value="0">
+    </div>
+    <div class="atributo">
+      <label class="campo-label" for="bonusRdFisica">Bônus de armadura (RD Física)</label>
+      <input type="number" id="bonusRdFisica" value="0">
+    </div>
+    <div class="atributo">
+      <label class="campo-label" for="bonusRdMagica">Bônus de armadura (RD Mágica)</label>
+      <input type="number" id="bonusRdMagica" value="0">
+    </div>
+  </div>
+  <div class="resumo">
+    <div class="valor"><div class="num" id="v-defesa">—</div><div class="lbl">Defesa</div></div>
+    <div class="valor"><div class="num" id="v-iniciativa">—</div><div class="lbl">Iniciativa</div></div>
+    <div class="valor"><div class="num" id="v-inventario">—</div><div class="lbl">Espaços de inventário</div></div>
+    <div class="valor"><div class="num" id="v-limite">—</div><div class="lbl">Limite de atributo</div></div>
+    <div class="valor"><div class="num" id="v-rdFisica">—</div><div class="lbl">RD Física</div></div>
+    <div class="valor"><div class="num" id="v-rdMagica">—</div><div class="lbl">RD Mágica</div></div>
+    <div class="valor"><div class="num" id="v-esquivar">—</div><div class="lbl">Esquivar (bônus na Defesa)</div></div>
+    <div class="valor"><div class="num" id="v-bloquear">—</div><div class="lbl">Bloquear (bônus na RD)</div></div>
+  </div>
+
+  <h2>Recursos</h2>
+  <div class="recursos-grid">
+    <div class="painel">
+      <h3>Coroas</h3>
+      <div class="recurso-linha">
+        <div class="steppers"><button data-alvo="coroas" data-delta="-1">−</button></div>
+        <input type="number" id="coroas" value="0">
+        <div class="steppers"><button data-alvo="coroas" data-delta="1">+</button></div>
+      </div>
+    </div>
+    <div class="painel">
+      <h3>Provisões</h3>
+      <div class="recurso-linha">
+        <div class="steppers"><button data-alvo="provisoes" data-delta="-1">−</button></div>
+        <input type="number" id="provisoes" value="0">
+        <div class="steppers"><button data-alvo="provisoes" data-delta="1">+</button></div>
+      </div>
+    </div>
+  </div>
+
+  <h2>Equipamento</h2>
+  <div class="equip-grid">
+    <div class="equip-slot">
+      <label class="campo-label" for="eq-cabeca">Cabeça</label>
+      <input type="text" id="eq-cabeca" placeholder="vazio">
+    </div>
+    <div class="equip-slot">
+      <label class="campo-label" for="eq-corpo">Corpo</label>
+      <input type="text" id="eq-corpo" placeholder="vazio">
+    </div>
+    <div class="equip-slot">
+      <label class="campo-label" for="eq-maoesq">Mão Esquerda</label>
+      <input type="text" id="eq-maoesq" placeholder="vazio">
+    </div>
+    <div class="equip-slot">
+      <label class="campo-label" for="eq-maodir">Mão Direita</label>
+      <input type="text" id="eq-maodir" placeholder="vazio">
+    </div>
+  </div>
+  <div class="adornos-wrap">
+    <h3 id="adornosTitulo">Adornos</h3>
+    <div class="adornos-grid" id="grid-adornos"></div>
+  </div>
+
+  <h2>Inventário</h2>
+  <div class="inventario-capacidade" id="inventarioCapacidade">— / —</div>
+  <div class="inventario-add">
+    <input type="text" id="novoItem" placeholder="Nome do item...">
+    <button id="btnAddItem">Adicionar</button>
+  </div>
+  <ul class="inventario-lista" id="inventarioLista"></ul>
+
+  <h2>Santuário Vinculado</h2>
+  <div class="painel">
+    <div class="santuario-grid">
+      <div>
+        <label class="campo-label" for="santuarioNome">Nome</label>
+        <input type="text" id="santuarioNome" placeholder="—">
+      </div>
+      <div>
+        <label class="campo-label" for="santuarioBonus">Bônus fixo concedido</label>
+        <input type="text" id="santuarioBonus" placeholder="ex: +2 PV máximo, +1 Vontade...">
+      </div>
+    </div>
+  </div>
+
+  <h2>Condições Ativas</h2>
+  <div class="condicoes-add">
+    <input type="text" id="novaCondicao" placeholder="ex: Lacerado, Envenenado...">
+    <button id="btnAddCondicao">Adicionar</button>
+  </div>
+  <div class="condicoes-lista" id="condicoesLista"></div>
+
+  <p class="nota">
+    Cálculos conforme Núcleo, seções 1–2 e 6.1–6.2. Defesa e RD somam os bônus de armadura inseridos acima manualmente.
+    Atributos só entram diretamente nas Reações, no momento de um ataque específico. Raça e Classe ainda não alteram
+    valores automaticamente — servem só de registro por enquanto. Magias, habilidades e anotações de campanha ficam
+    em outra parte da ficha.
+  </p>
+
+  <div class="rodape-acoes">
+    <button class="reset" id="btnReset">Limpar ficha</button>
+  </div>
+
+<script>
+  const CHAVE = "sinaDeFerro.ficha";
+
+  const ATRIBUTOS = [
+    { chave: "forca", nome: "Força" },
+    { chave: "vigor", nome: "Vigor" },
+    { chave: "velocidade", nome: "Velocidade" },
+    { chave: "atencao", nome: "Atenção" },
+    { chave: "vontade", nome: "Vontade" },
+    { chave: "intelecto", nome: "Intelecto" },
+    { chave: "talento", nome: "Talento" },
+  ];
+
+  const BONUS_PAR_SUFIXO = {
+    forca: "Redução de Dano Física",
+    vigor: "PV extra por nível",
+    velocidade: "espaço(s) de movimento",
+    atencao: "em qualquer Reação",
+    vontade: "Redução de Dano Mágica",
+    intelecto: "Mana extra por nível",
+    talento: "adorno(s)",
+  };
+
+  // Núcleo, seção 2.2 — XP necessário para ir do nível N ao N+1.
+  const XP_POR_NIVEL = {
+    1:10, 2:15, 3:23, 4:35, 5:53, 6:80, 7:120, 8:180, 9:270, 10:405,
+    11:608, 12:912, 13:1368, 14:2052, 15:3078, 16:4617, 17:6926, 18:10389, 19:15584, 20:null
+  };
+
+  const VIDA_BASE = 8, GANHO_VIDA = 6, MANA_BASE = 4, GANHO_MANA = 4;
+
+  function bonusPar(v) { return Math.floor(v / 2); }
+
+  function estadoPadrao() {
+    return {
+      nome: "", jogador: "", raca: "", classe: "",
+      nivel: 1, xpAtual: 0,
+      atributos: { forca:1, vigor:1, velocidade:1, atencao:1, vontade:1, intelecto:1, talento:1 },
+      pvAtual: null, manaAtual: null,
+      sina: 3,
+      bonusDefesa: 0, bonusRdFisica: 0, bonusRdMagica: 0,
+      coroas: 0, provisoes: 0,
+      equip: { cabeca:"", corpo:"", maoesq:"", maodir:"", adornos: [] },
+      inventario: [],
+      santuarioNome: "", santuarioBonus: "",
+      condicoes: [],
+    };
+  }
+
+  function carregar() {
+    try {
+      const bruto = localStorage.getItem(CHAVE);
+      if (!bruto) return estadoPadrao();
+      const dado = JSON.parse(bruto);
+      return Object.assign(estadoPadrao(), dado, {
+        atributos: Object.assign(estadoPadrao().atributos, dado.atributos || {}),
+        equip: Object.assign(estadoPadrao().equip, dado.equip || {}),
+      });
+    } catch (e) { return estadoPadrao(); }
+  }
+
+  function salvar() { localStorage.setItem(CHAVE, JSON.stringify(estado)); }
+
+  let estado = carregar();
+
+  // ---------- Montagem da grade de atributos ----------
+  const gridAtributos = document.getElementById("grid-atributos");
+  gridAtributos.innerHTML = ATRIBUTOS.map(a => `
+    <div class="atributo">
+      <label class="campo-label" for="attr-${a.chave}">${a.nome}</label>
+      <input type="number" id="attr-${a.chave}" min="1" value="1">
+      <div class="bonus-par" id="par-${a.chave}"></div>
+    </div>
+  `).join("");
+
+  function valorNum(id) { return Number(document.getElementById(id).value) || 0; }
+
+  // ---------- Inventário ----------
+  function renderInventario(capacidade) {
+    const ul = document.getElementById("inventarioLista");
+    ul.innerHTML = estado.inventario.length
+      ? estado.inventario.map((item, i) => `
+          <li>
+            <span>${item}</span>
+            <button class="btn-remover" data-i="${i}">remover</button>
+          </li>`).join("")
+      : `<li class="vazio">Nenhum item no inventário.</li>`;
+
+    ul.querySelectorAll(".btn-remover").forEach(btn => {
+      btn.addEventListener("click", () => {
+        estado.inventario.splice(Number(btn.dataset.i), 1);
+        salvar();
+        recalcular();
+      });
+    });
+
+    const cap = document.getElementById("inventarioCapacidade");
+    const usados = estado.inventario.length;
+    cap.innerHTML = `<strong>${usados}</strong> / ${capacidade} espaços usados`;
+    cap.classList.toggle("cheio", usados >= capacidade);
+  }
+
+  document.getElementById("btnAddItem").addEventListener("click", () => {
+    const input = document.getElementById("novoItem");
+    const nome = input.value.trim();
+    if (!nome) return;
+    estado.inventario.push(nome);
+    input.value = "";
+    salvar();
+    recalcular();
+  });
+  document.getElementById("novoItem").addEventListener("keydown", (e) => {
+    if (e.key === "Enter") { e.preventDefault(); document.getElementById("btnAddItem").click(); }
+  });
+
+  // ---------- Condições ----------
+  function renderCondicoes() {
+    const wrap = document.getElementById("condicoesLista");
+    wrap.innerHTML = estado.condicoes.length
+      ? estado.condicoes.map((c, i) => `
+          <span class="condicao-tag">${c}<button data-i="${i}">×</button></span>`).join("")
+      : `<span class="condicoes-vazio">Nenhuma condição ativa.</span>`;
+
+    wrap.querySelectorAll("button").forEach(btn => {
+      btn.addEventListener("click", () => {
+        estado.condicoes.splice(Number(btn.dataset.i), 1);
+        salvar();
+        recalcular();
+      });
+    });
+  }
+
+  document.getElementById("btnAddCondicao").addEventListener("click", () => {
+    const input = document.getElementById("novaCondicao");
+    const nome = input.value.trim();
+    if (!nome) return;
+    estado.condicoes.push(nome);
+    input.value = "";
+    salvar();
+    recalcular();
+  });
+  document.getElementById("novaCondicao").addEventListener("keydown", (e) => {
+    if (e.key === "Enter") { e.preventDefault(); document.getElementById("btnAddCondicao").click(); }
+  });
+
+  // ---------- Sina (pips) ----------
+  document.querySelectorAll("#pipsSina .pip").forEach(pip => {
+    pip.addEventListener("click", () => {
+      const i = Number(pip.dataset.i);
+      estado.sina = (estado.sina === i + 1) ? i : i + 1;
+      salvar();
+      recalcular();
+    });
+  });
+
+  // ---------- Steppers genéricos (PV, Mana, Coroas, Provisões) ----------
+  document.querySelectorAll("button[data-alvo]").forEach(btn => {
+    btn.addEventListener("click", () => {
+      const alvo = document.getElementById(btn.dataset.alvo);
+      const delta = Number(btn.dataset.delta);
+      alvo.value = Number(alvo.value || 0) + delta;
+      alvo.dispatchEvent(new Event("input", { bubbles: true }));
+    });
+  });
+
+  // ---------- Adornos dinâmicos ----------
+  function renderAdornos(limite) {
+    const grid = document.getElementById("grid-adornos");
+    document.getElementById("adornosTitulo").textContent = `Adornos (${estado.equip.adornos.filter(Boolean).length} / ${limite})`;
+    while (estado.equip.adornos.length < limite) estado.equip.adornos.push("");
+    estado.equip.adornos = estado.equip.adornos.slice(0, limite);
+    grid.innerHTML = estado.equip.adornos.map((v, i) => `
+      <div class="equip-slot">
+        <label class="campo-label">Adorno ${i + 1}</label>
+        <input type="text" class="adorno-input" data-i="${i}" value="${v.replace(/"/g,'&quot;')}" placeholder="vazio">
+      </div>
+    `).join("");
+    grid.querySelectorAll(".adorno-input").forEach(inp => {
+      inp.addEventListener("input", () => {
+        estado.equip.adornos[Number(inp.dataset.i)] = inp.value;
+        salvar();
+      });
+    });
+  }
+
+  // ---------- Campos simples (texto) ligados direto ao estado ----------
+  const CAMPOS_TEXTO = {
+    nome: "nome", jogador: "jogador", raca: "raca", classe: "classe",
+    "eq-cabeca": "equip.cabeca", "eq-corpo": "equip.corpo", "eq-maoesq": "equip.maoesq", "eq-maodir": "equip.maodir",
+    santuarioNome: "santuarioNome", santuarioBonus: "santuarioBonus",
+  };
+
+  function setCaminho(obj, caminho, valor) {
+    const partes = caminho.split(".");
+    let alvo = obj;
+    for (let i = 0; i < partes.length - 1; i++) alvo = alvo[partes[i]];
+    alvo[partes[partes.length - 1]] = valor;
+  }
+  function getCaminho(obj, caminho) {
+    return caminho.split(".").reduce((acc, p) => (acc ? acc[p] : undefined), obj);
+  }
+
+  function preencherCamposSalvos() {
+    document.getElementById("nivel").value = estado.nivel;
+    document.getElementById("xpAtual").value = estado.xpAtual;
+    document.getElementById("bonusDefesa").value = estado.bonusDefesa;
+    document.getElementById("bonusRdFisica").value = estado.bonusRdFisica;
+    document.getElementById("bonusRdMagica").value = estado.bonusRdMagica;
+    document.getElementById("coroas").value = estado.coroas;
+    document.getElementById("provisoes").value = estado.provisoes;
+    ATRIBUTOS.forEach(a => { document.getElementById("attr-" + a.chave).value = estado.atributos[a.chave]; });
+    Object.keys(CAMPOS_TEXTO).forEach(id => {
+      document.getElementById(id).value = getCaminho(estado, CAMPOS_TEXTO[id]) || "";
+    });
+    if (estado.pvAtual !== null) document.getElementById("pvAtual").value = estado.pvAtual;
+    if (estado.manaAtual !== null) document.getElementById("manaAtual").value = estado.manaAtual;
+  }
+
+  // ---------- Recalcular tudo ----------
+  function recalcular() {
+    const nivel = Math.max(1, Math.min(20, valorNum("nivel")));
+    document.getElementById("nivel").value = nivel;
+    estado.nivel = nivel;
+    estado.xpAtual = valorNum("xpAtual");
+
+    const attrs = {};
+    ATRIBUTOS.forEach(a => { attrs[a.chave] = valorNum("attr-" + a.chave); estado.atributos[a.chave] = attrs[a.chave]; });
+    ATRIBUTOS.forEach(a => {
+      const bonus = bonusPar(attrs[a.chave]);
+      document.getElementById("par-" + a.chave).textContent = `+${bonus} ${BONUS_PAR_SUFIXO[a.chave]}`;
+    });
+
+    const bonusVigor = bonusPar(attrs.vigor);
+    const bonusIntelecto = bonusPar(attrs.intelecto);
+    const niveisGanhos = nivel - 1;
+    const pvMax = VIDA_BASE + niveisGanhos * (GANHO_VIDA + bonusVigor);
+    const manaMax = MANA_BASE + niveisGanhos * (GANHO_MANA + bonusIntelecto);
+    document.getElementById("pvMax").textContent = pvMax;
+    document.getElementById("manaMax").textContent = manaMax;
+
+    if (estado.pvAtual === null) estado.pvAtual = pvMax;
+    if (estado.manaAtual === null) estado.manaAtual = manaMax;
+    estado.pvAtual = Math.max(0, Math.min(pvMax, valorNum("pvAtual") || estado.pvAtual));
+    estado.manaAtual = Math.max(0, Math.min(manaMax, valorNum("manaAtual") || estado.manaAtual));
+    document.getElementById("pvAtual").value = estado.pvAtual;
+    document.getElementById("manaAtual").value = estado.manaAtual;
+
+    // XP / progressão
+    const xpProximo = XP_POR_NIVEL[nivel];
+    const legenda = document.getElementById("xpLegenda");
+    const barra = document.getElementById("xpBarraFill");
+    if (xpProximo === null) {
+      legenda.innerHTML = `<strong>Nível máximo (20)</strong> — sem próximo nível`;
+      barra.style.width = "100%";
+    } else {
+      const xpAtualClamp = Math.max(0, Math.min(estado.xpAtual, xpProximo));
+      legenda.innerHTML = `<strong>${xpAtualClamp}</strong> / ${xpProximo} XP para o nível ${nivel + 1}`;
+      barra.style.width = Math.min(100, (xpAtualClamp / xpProximo) * 100) + "%";
+    }
+
+    // Sina
+    document.querySelectorAll("#pipsSina .pip").forEach((el, i) => el.classList.toggle("on", i < estado.sina));
+
+    // Combate
+    const bonusDefesa = valorNum("bonusDefesa");
+    const bonusRdFisica = valorNum("bonusRdFisica");
+    const bonusRdMagica = valorNum("bonusRdMagica");
+    estado.bonusDefesa = bonusDefesa; estado.bonusRdFisica = bonusRdFisica; estado.bonusRdMagica = bonusRdMagica;
+
+    const defesa = 10 + bonusDefesa;
+    const iniciativa = 10 + attrs.velocidade;
+    const inventario = 6 + attrs.talento; // Núcleo, seção 2: "6 + Atributo Talento"
+    const limiteAdornos = 2 + bonusPar(attrs.talento); // Núcleo, seção 2: "2 + metade do atributo Talento"
+    const limiteAtributo = 4 + Math.floor(nivel / 2);
+    const rdFisica = bonusPar(attrs.forca) + bonusRdFisica;
+    const rdMagica = bonusPar(attrs.vontade) + bonusRdMagica;
+    const bonusAtencao = bonusPar(attrs.atencao);
+    const esquivar = attrs.velocidade + bonusAtencao;
+    const bloquear = attrs.vigor + bonusAtencao;
+
+    document.getElementById("v-defesa").textContent = defesa;
+    document.getElementById("v-iniciativa").textContent = iniciativa;
+    document.getElementById("v-inventario").textContent = inventario;
+    document.getElementById("v-limite").textContent = limiteAtributo;
+    document.getElementById("v-rdFisica").textContent = rdFisica;
+    document.getElementById("v-rdMagica").textContent = rdMagica;
+    document.getElementById("v-esquivar").textContent = "+" + esquivar;
+    document.getElementById("v-bloquear").textContent = "+" + bloquear;
+
+    // Recursos
+    estado.coroas = valorNum("coroas");
+    estado.provisoes = valorNum("provisoes");
+
+    // Campos de texto
+    Object.keys(CAMPOS_TEXTO).forEach(id => {
+      setCaminho(estado, CAMPOS_TEXTO[id], document.getElementById(id).value);
+    });
+
+    renderAdornos(limiteAdornos);
+    renderInventario(inventario);
+    renderCondicoes();
+
+    salvar();
+  }
+
+  preencherCamposSalvos();
+  renderAdornos(2 + bonusPar(estado.atributos.talento));
+  renderInventario(6 + estado.atributos.talento);
+  renderCondicoes();
+
+  document.body.addEventListener("input", (e) => {
+    if (e.target.closest(".adorno-input")) return; // adornos já têm handler próprio
+    recalcular();
+  });
+  recalcular();
+
+  document.getElementById("btnReset").addEventListener("click", () => {
+    if (confirm("Limpar todos os dados desta ficha? Essa ação não pode ser desfeita.")) {
+      estado = estadoPadrao();
+      salvar();
+      location.reload();
+    }
+  });
+</script>
+</body>
+</html>
