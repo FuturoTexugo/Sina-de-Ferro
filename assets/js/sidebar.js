@@ -17,7 +17,6 @@ const Sidebar = (() => {
     { titulo: "Ficha Impressa (em branco)", rota: "ficha/ficha_impressa.html" },
     { titulo: "Roleta da Dor", rota: "#/roleta" },
     { titulo: "Rastreador de Ruína", rota: "#/ruina" },
-    { titulo: "Licença", rota: "#/licenca" },
   ];
 
   function linkHtml(titulo, rota) {
