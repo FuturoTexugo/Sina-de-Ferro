@@ -1,28 +1,9 @@
-/**
- * router.js
- * ---------
- * Roteamento simples via hash (#/...), funciona em qualquer hospedagem
- * estática, sem precisar configurar rotas no servidor.
- *
- * Rotas:
- *   #/nucleo                         -> nucleo/Sina de Ferro — Núcleo.md
- *   #/conteudo/<caminho>.md          -> conteudo/<caminho>.md
- *   #/ficha                         -> carrega ficha/ficha.html num iframe
- *   #/roleta                        -> carrega roleta/roleta.html num iframe
- *   #/ruina                         -> carrega ruina/ruina.html num iframe
- *   #/licenca                       -> legal/Licenca.md
- */
-
 const Router = (() => {
   const CAMINHO_NUCLEO = "nucleo/nucleo.md";
-  const CAMINHO_LICENCA = "legal/Licenca.md";
+
 
   function tituloDaRota(rota) {
     if (rota === "#/nucleo" || rota === "") return "Núcleo do Sistema";
-    if (rota === "#/ficha") return "Ficha de Personagem";
-    if (rota === "#/roleta") return "Roleta da Dor";
-    if (rota === "#/ruina") return "Rastreador de Ruína";
-    if (rota === "#/licenca") return "Licença";
     if (rota.startsWith("#/conteudo/")) {
       const partes = decodeURIComponent(rota.replace("#/conteudo/", "")).split("/");
       return partes[partes.length - 1].replace(".md", "");
@@ -46,26 +27,6 @@ const Router = (() => {
     await MdRender.renderizar(CAMINHO_NUCLEO);
   }
 
-  function renderizarFicha() {
-    document.getElementById("conteudo").innerHTML = `
-      <iframe src="ficha/ficha.html"
-        style="width:100%; min-height: 78vh; border:1px solid var(--line); border-radius:4px; background:transparent;">
-      </iframe>`;
-  }
-
-  function renderizarRoleta() {
-    document.getElementById("conteudo").innerHTML = `
-      <iframe src="roleta/roleta.html"
-        style="width:100%; min-height: 78vh; border:1px solid var(--line); border-radius:4px; background:transparent;">
-      </iframe>`;
-  }
-
-  function renderizarRuina() {
-    document.getElementById("conteudo").innerHTML = `
-      <iframe src="ruina/ruina.html"
-        style="width:100%; min-height: 78vh; border:1px solid var(--line); border-radius:4px; background:transparent;">
-      </iframe>`;
-  }
 
   function fecharSidebarMobile() {
     document.getElementById("sidebar").classList.remove("is-open");
