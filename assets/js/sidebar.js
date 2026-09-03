@@ -12,7 +12,13 @@ const Sidebar = (() => {
     { titulo: "Núcleo do Sistema", rota: "#/nucleo" },
   ];
 
-
+  const ITENS_FIXOS_RODAPE = [
+    { titulo: "Ficha de Personagem", rota: "#/ficha" },
+    { titulo: "Ficha Impressa (em branco)", rota: "ficha/ficha_impressa.html" },
+    { titulo: "Roleta da Dor", rota: "#/roleta" },
+    { titulo: "Rastreador de Ruína", rota: "#/ruina" },
+    { titulo: "Licença", rota: "#/licenca" },
+  ];
 
   function linkHtml(titulo, rota) {
     // Rotas que não começam com "#/" são páginas externas ao roteador
