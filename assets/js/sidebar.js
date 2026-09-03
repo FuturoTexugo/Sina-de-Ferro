@@ -13,6 +13,7 @@ const Sidebar = (() => {
   ];
 
 
+
   function linkHtml(titulo, rota) {
     // Rotas que não começam com "#/" são páginas externas ao roteador
     // (ex.: a ficha impressa em branco) e abrem numa aba nova.
