@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sina de Ferro</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+<link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+
+<div class="app">
+
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-brand">
+      <span class="eyebrow">Sistema de RPG</span>
+      <h1>Sina de Ferro</h1>
+    </div>
+
+    <nav class="nav" id="nav">
+      <!-- Montado dinamicamente por sidebar.js a partir de conteudo/manifest.json -->
+      <div class="estado">Carregando índice…</div>
+    </nav>
+  </aside>
+
+  <div class="main">
+    <header class="topbar">
+      <button class="menu-toggle" id="menuToggle" aria-label="Abrir menu">☰</button>
+      <span class="topbar-title" id="topbarTitle">Núcleo</span>
+
+      <div class="ruina" title="Medidor de Ruína do mundo (demonstração)">
+        <span class="ruina-label">Ruína</span>
+        <div class="ruina-track">
+          <div class="ruina-fill" style="--ruina-pct: 22%;"></div>
+        </div>
+        <div class="sina-pips" title="Pontos de Sina">
+          <span></span><span></span><span></span>
+        </div>
+      </div>
+    </header>
+
+    <div class="content-wrap">
+      <div id="conteudo">
+        <div class="estado">Carregando…</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+<script src="assets/js/md-render.js"></script>
+<script src="assets/js/sidebar.js"></script>
+<script src="assets/js/router.js"></script>
+<script src="assets/js/app.js"></script>
+</body>
+</html>

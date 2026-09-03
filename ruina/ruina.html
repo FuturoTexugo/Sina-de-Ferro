@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<title>Rastreador de Ruína — Sina de Ferro</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&family=Source+Serif+4:wght@400;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg-raised:#171b23; --bg-panel:#1b1f28; --line:#322a24; --line-soft:#23262e;
+    --rust:#a1512e; --rust-bright:#c96a3c; --brass:#b89a5d;
+    --ruin:#7a2530; --ruin-bright:#a53a3a;
+    --paper:#d9d2c1; --paper-dim:#8d8878; --paper-faint:#5f5c52;
+    --font-display:'Cinzel',serif; --font-body:'Source Serif 4',serif; --font-mono:'JetBrains Mono',monospace;
+  }
+  * { box-sizing: border-box; }
+  body { margin:0; background:transparent; color:var(--paper); font-family:var(--font-body); padding: 4px 4px 28px; }
+
+  h2 { font-family: var(--font-display); font-size: 16px; color: var(--rust-bright); text-transform: uppercase; letter-spacing: 0.06em; border-bottom: 1px solid var(--line); padding-bottom: 8px; margin: 28px 0 14px; }
+  h2:first-of-type { margin-top: 0; }
+
+  /* ---------- Medidor principal ---------- */
+  .medidor {
+    display: flex; align-items: center; gap: 22px; flex-wrap: wrap;
+    background: var(--bg-panel); border: 1px solid var(--line); border-radius: 6px;
+    padding: 20px 24px;
+  }
+
+  .medidor .num {
+    font-family: var(--font-display); font-size: 44px; color: var(--ruin-bright);
+    min-width: 64px; text-align: center;
+  }
+
+  .medidor .info { flex: 1; min-width: 180px; }
+  .medidor .faixa-nome { font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--brass); margin-bottom: 6px; }
+  .medidor .faixa-range { font-size: 14px; color: var(--paper-dim); }
+
+  .barra-track {
+    position: relative; width: 100%; height: 12px; margin-top: 10px;
+    background: var(--bg-raised); border: 1px solid var(--line); border-radius: 6px; overflow: hidden;
+  }
+  .barra-fill {
+    position: absolute; inset: 0; width: 0%;
+    background: linear-gradient(90deg, var(--brass), var(--rust) 55%, var(--ruin-bright));
+    transition: width 0.4s ease;
+  }
+
+  .ruina-btns { display: flex; gap: 8px; flex-shrink: 0; }
+  .ruina-btns button {
+    font-family: var(--font-mono); font-size: 15px; width: 34px; height: 34px;
+    border-radius: 4px; border: 1px solid var(--line); background: var(--bg-raised); color: var(--paper);
+    cursor: pointer;
+  }
+  .ruina-btns button:hover { background: var(--rust); border-color: var(--rust); }
+
+  /* ---------- Descansos ---------- */
+  .descansos {
+    display: flex; align-items: center; gap: 16px; flex-wrap: wrap;
+    background: var(--bg-panel); border: 1px solid var(--line); border-radius: 6px;
+    padding: 16px 20px;
+  }
+  .pips { display: flex; gap: 8px; }
+  .pip {
+    width: 16px; height: 16px; border-radius: 50%;
+    border: 1.5px solid var(--brass); background: transparent;
+  }
+  .pip.on { background: var(--brass); box-shadow: 0 0 8px rgba(184,154,93,0.5); }
+
+  .descansos .legenda { font-family: var(--font-mono); font-size: 12px; color: var(--paper-dim); flex: 1; min-width: 160px; }
+
+  button.acao {
+    font-family: var(--font-display); font-size: 13px; letter-spacing: 0.04em; text-transform: uppercase;
+    color: var(--paper); border: 1px solid var(--line); border-radius: 4px; padding: 9px 16px; cursor: pointer;
+  }
+  button.acao.subir { background: linear-gradient(180deg, var(--rust), #7a3a1e); }
+  button.acao.descer { background: linear-gradient(180deg, #3d5a45, #24361f); }
+  button.acao:hover { filter: brightness(1.12); }
+
+  .acoes-rapidas { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 14px; }
+
+  /* ---------- Tabela de faixas ---------- */
+  table { width: 100%; border-collapse: collapse; font-size: 13px; margin-top: 4px; }
+  th, td { border: 1px solid var(--line); padding: 8px 10px; text-align: left; }
+  th { font-family: var(--font-mono); font-size: 10.5px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--brass); background: var(--bg-raised); }
+  tr.linha-atual td { background: rgba(161, 81, 46, 0.16); color: var(--paper); font-weight: 600; }
+  tr.linha-atual td:first-child { border-left: 3px solid var(--rust-bright); }
+
+  .nota-seguidores {
+    font-family: var(--font-mono); font-size: 11.5px; color: var(--paper-dim);
+    margin-top: 10px; line-height: 1.6;
+  }
+  .nota-seguidores strong { color: var(--rust-bright); }
+
+  /* ---------- Histórico ---------- */
+  .historico-lista { list-style: none; margin: 0; padding: 0; font-family: var(--font-mono); font-size: 12px; color: var(--paper-dim); }
+  .historico-lista li { padding: 5px 0; border-bottom: 1px solid var(--line-soft); }
+  .historico-lista li:last-child { border-bottom: none; }
+  .historico-lista .vazio { color: var(--paper-faint); font-style: italic; }
+
+  .rodape-acoes { text-align: right; margin-top: 20px; }
+  button.reset {
+    font-family: var(--font-mono); font-size: 11px; color: var(--paper-faint);
+    background: none; border: 1px solid var(--line); border-radius: 3px; padding: 6px 12px; cursor: pointer;
+  }
+  button.reset:hover { color: var(--ruin-bright); border-color: var(--ruin-bright); }
+</style>
+</head>
+<body>
+
+  <h2>Medidor de Ruína</h2>
+  <div class="medidor">
+    <div class="num" id="numRuina">0</div>
+    <div class="info">
+      <div class="faixa-nome" id="faixaNome">Faixa 0 — Calmaria Aparente</div>
+      <div class="faixa-range" id="faixaRange">Ruína 0</div>
+      <div class="barra-track"><div class="barra-fill" id="barraFill"></div></div>
+    </div>
+    <div class="ruina-btns">
+      <button id="btnMenos" title="-1 Ruína manual">−</button>
+      <button id="btnMais" title="+1 Ruína manual">+</button>
+    </div>
+  </div>
+
+  <h2>Descanso Longo (gatilho de tempo)</h2>
+  <div class="descansos">
+    <div class="pips" id="pips"><span class="pip"></span><span class="pip"></span><span class="pip"></span></div>
+    <div class="legenda">A cada <strong>3 Descansos Longos</strong> do grupo, a Ruína sobe +1 (seção 11.1)</div>
+    <button class="acao subir" id="btnDescanso">+1 Descanso Longo</button>
+  </div>
+
+  <div class="acoes-rapidas">
+    <button class="acao subir" id="btnTemplo">Templo/Santuário destruído (+1 Ruína)</button>
+    <button class="acao descer" id="btnArauto">Arauto derrotado (−1 Ruína)</button>
+    <button class="acao descer" id="btnArtificio">Artifício destruído (−1 Ruína)</button>
+  </div>
+
+  <h2>Faixas e efeitos (seção 11.3)</h2>
+  <table>
+    <thead><tr><th>Faixa</th><th>Ruína</th><th>Dano (fixo)</th><th>Ataque</th><th>Vida (PV)</th></tr></thead>
+    <tbody id="tabelaFaixas"></tbody>
+  </table>
+  <p class="nota-seguidores">
+    <strong>Seguidores da Ruína</strong> recebem apenas <strong>metade</strong> desses bônus (arredondado para baixo) — evita espiral sem saída, já que são eles que precisam ser derrotados pra reduzir a Ruína.
+  </p>
+
+  <h2>Histórico recente</h2>
+  <ul class="historico-lista" id="historicoLista"><li class="vazio">Nenhuma ação registrada ainda.</li></ul>
+
+  <div class="rodape-acoes">
+    <button class="reset" id="btnReset">Reiniciar campanha</button>
+  </div>
+
+<script>
+  const CHAVE = "sinaDeFerro.ruina";
+
+  const FAIXAS = [
+    { faixa: 0, min: 0,  max: 0,   nome: "Calmaria Aparente", dano: "—", ataque: "—", vida: "—" },
+    { faixa: 1, min: 1,  max: 3,   nome: "Rachaduras",        dano: "+1", ataque: "+0", vida: "+2" },
+    { faixa: 2, min: 4,  max: 6,   nome: "Deterioração",      dano: "+2", ataque: "+1", vida: "+4" },
+    { faixa: 3, min: 7,  max: 9,   nome: "Colapso",           dano: "+3", ataque: "+2", vida: "+6" },
+    { faixa: 4, min: 10, max: Infinity, nome: "Fim dos Dias", dano: "+4", ataque: "+3", vida: "+8" },
+  ];
+
+  function estadoPadrao() {
+    return { ruina: 0, descansos: 0, historico: [] };
+  }
+
+  function carregar() {
+    try {
+      const bruto = localStorage.getItem(CHAVE);
+      if (!bruto) return estadoPadrao();
+      const dado = JSON.parse(bruto);
+      return { ruina: dado.ruina || 0, descansos: dado.descansos || 0, historico: dado.historico || [] };
+    } catch (e) {
+      return estadoPadrao();
+    }
+  }
+
+  function salvar() {
+    localStorage.setItem(CHAVE, JSON.stringify(estado));
+  }
+
+  function faixaDe(ruina) {
+    return FAIXAS.find(f => ruina >= f.min && ruina <= f.max) || FAIXAS[FAIXAS.length - 1];
+  }
+
+  function registrar(texto) {
+    estado.historico.unshift({ texto, quando: new Date().toLocaleString("pt-BR") });
+    if (estado.historico.length > 15) estado.historico.pop();
+  }
+
+  function alterarRuina(delta, motivo) {
+    estado.ruina = Math.max(0, estado.ruina + delta);
+    registrar(`${delta > 0 ? "+1" : "−1"} Ruína — ${motivo} (total: ${estado.ruina})`);
+    salvar();
+    renderizar();
+  }
+
+  function marcarDescanso() {
+    estado.descansos += 1;
+    if (estado.descansos >= 3) {
+      estado.descansos = 0;
+      estado.ruina += 1;
+      registrar(`3º Descanso Longo — Ruína sobe automaticamente (total: ${estado.ruina})`);
+    } else {
+      registrar(`Descanso Longo registrado (${estado.descansos}/3)`);
+    }
+    salvar();
+    renderizar();
+  }
+
+  function renderizar() {
+    const f = faixaDe(estado.ruina);
+    document.getElementById("numRuina").textContent = estado.ruina;
+    document.getElementById("faixaNome").textContent = `Faixa ${f.faixa} — ${f.nome}`;
+    document.getElementById("faixaRange").textContent =
+      f.max === Infinity ? `Ruína ${f.min}+` : (f.min === f.max ? `Ruína ${f.min}` : `Ruína ${f.min}–${f.max}`);
+
+    const pctTeto = 10; // Faixa 4 (Fim dos Dias) começa em 10 — usada como teto visual da barra
+    document.getElementById("barraFill").style.width = Math.min(100, (estado.ruina / pctTeto) * 100) + "%";
+
+    document.querySelectorAll("#pips .pip").forEach((el, i) => {
+      el.classList.toggle("on", i < estado.descansos);
+    });
+
+    document.getElementById("tabelaFaixas").innerHTML = FAIXAS.map(row => `
+      <tr class="${row.faixa === f.faixa ? "linha-atual" : ""}">
+        <td>${row.faixa}</td>
+        <td>${row.max === Infinity ? row.min + "+" : (row.min === row.max ? row.min : row.min + "–" + row.max)}</td>
+        <td>${row.dano}</td>
+        <td>${row.ataque}</td>
+        <td>${row.vida}</td>
+      </tr>
+    `).join("");
+
+    const lista = document.getElementById("historicoLista");
+    lista.innerHTML = estado.historico.length
+      ? estado.historico.map(h => `<li>${h.texto}</li>`).join("")
+      : `<li class="vazio">Nenhuma ação registrada ainda.</li>`;
+  }
+
+  let estado = carregar();
+
+  document.getElementById("btnMais").addEventListener("click", () => alterarRuina(1, "ajuste manual"));
+  document.getElementById("btnMenos").addEventListener("click", () => alterarRuina(-1, "ajuste manual"));
+  document.getElementById("btnDescanso").addEventListener("click", marcarDescanso);
+  document.getElementById("btnTemplo").addEventListener("click", () => alterarRuina(1, "Templo/Santuário destruído"));
+  document.getElementById("btnArauto").addEventListener("click", () => alterarRuina(-1, "Arauto derrotado"));
+  document.getElementById("btnArtificio").addEventListener("click", () => alterarRuina(-1, "Artifício destruído"));
+  document.getElementById("btnReset").addEventListener("click", () => {
+    if (confirm("Reiniciar a Ruína, o contador de Descansos Longos e o histórico?")) {
+      estado = estadoPadrao();
+      salvar();
+      renderizar();
+    }
+  });
+
+  renderizar();
+</script>
+</body>
+</html>
