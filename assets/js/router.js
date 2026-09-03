@@ -22,7 +22,6 @@ const Router = (() => {
     if (rota === "#/ficha") return "Ficha de Personagem";
     if (rota === "#/roleta") return "Roleta da Dor";
     if (rota === "#/ruina") return "Rastreador de Ruína";
-    if (rota === "#/licenca") return "Licença";
     if (rota.startsWith("#/conteudo/")) {
       const partes = decodeURIComponent(rota.replace("#/conteudo/", "")).split("/");
       return partes[partes.length - 1].replace(".md", "");
