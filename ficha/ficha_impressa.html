@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<title>Ficha Impressa — Sina de Ferro</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&family=Source+Serif+4:wght@400;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --paper: #f2e9d8;
+    --paper-2: #eee2cc;
+    --ink: #2a2117;
+    --ink-soft: #5b4d3a;
+    --ink-faint: #8a7a63;
+    --rust: #9c4a28;
+    --rust-deep: #7c3b20;
+    --brass: #7d6122;
+    --line: #c9b587;
+    --line-soft: #dccfa9;
+    --box: #fbf6ea;
+    --font-display: 'Cinzel', serif;
+    --font-body: 'Source Serif 4', serif;
+    --font-mono: 'JetBrains Mono', monospace;
+  }
+
+  * { box-sizing: border-box; }
+  html, body { margin:0; padding:0; background: var(--paper); color: var(--ink); font-family: var(--font-body); }
+
+  @page { size: A4; margin: 13mm 12mm 15mm; }
+  @page :first { margin-top: 10mm; }
+
+  /* ---------- barra de ações (some ao imprimir) ---------- */
+  .barra-acoes {
+    display:flex; justify-content:center; gap: 10px; align-items:center;
+    padding: 12px; background: var(--paper-2); border-bottom: 1px solid var(--line);
+    position: sticky; top: 0; z-index: 10;
+  }
+  .barra-acoes a, .barra-acoes button {
+    font-family: var(--font-mono); font-size: 11px; letter-spacing:0.04em; cursor:pointer;
+    padding: 7px 14px; border-radius: 4px; border: 1px solid var(--line); background: var(--box);
+    color: var(--ink-soft); text-decoration:none; display:inline-flex; align-items:center; gap:6px;
+  }
+  .barra-acoes button.principal { background: var(--rust-deep); color: var(--box); border-color: var(--rust-deep); }
+  .barra-acoes a:hover, .barra-acoes button:hover { filter: brightness(1.08); }
+  @media print { .barra-acoes { display:none; } }
+
+  .folha { position: relative; }
+  .folha + .folha { page-break-before: always; }
+
+  /* textura sutil de fundo por página, feita só com gradientes (leve, economiza tinta) */
+  .folha::before {
+    content: ""; position: fixed; inset: 0; z-index: -1;
+    background:
+      radial-gradient(ellipse at top left, rgba(156,74,40,0.05), transparent 55%),
+      radial-gradient(ellipse at bottom right, rgba(125,97,34,0.05), transparent 55%);
+  }
+
+  .marca-dagua {
+    position: absolute; top: 8mm; right: 0; font-family: var(--font-mono); font-size: 8px;
+    letter-spacing: 0.12em; color: var(--ink-faint); text-transform: uppercase;
+  }
+
+  /* ---------- Cabeçalho de seção ---------- */
+  h2 {
+    font-family: var(--font-display); font-size: 13.5px; font-weight: 700; color: var(--rust-deep);
+    text-transform: uppercase; letter-spacing: 0.1em; margin: 0 0 8px; padding-bottom: 5px;
+    border-bottom: 1.4px solid var(--rust); display:flex; align-items:baseline; gap: 8px;
+  }
+  h2 .num { font-family: var(--font-mono); font-size: 10px; color: var(--brass); font-weight: 400; }
+  h3 {
+    font-family: var(--font-mono); font-size: 9.5px; letter-spacing: 0.08em; text-transform: uppercase;
+    color: var(--brass); margin: 0 0 6px; font-weight: 700;
+  }
+  .bloco { margin-bottom: 12px; }
+
+  /* ---------- topo da folha: título geral ---------- */
+  .topo-titulo {
+    display:flex; justify-content:space-between; align-items:flex-end;
+    border-bottom: 2px solid var(--rust-deep); padding-bottom: 6px; margin-bottom: 12px;
+  }
+  .topo-titulo .t1 { font-family: var(--font-display); font-size: 19px; font-weight:700; letter-spacing:0.04em; color: var(--rust-deep); }
+  .topo-titulo .t2 { font-family: var(--font-mono); font-size: 9px; color: var(--ink-faint); letter-spacing: 0.08em; text-transform: uppercase; }
+
+  /* ---------- campo com linha para escrever ---------- */
+  .campo { display:flex; flex-direction:column; gap: 3px; }
+  .campo .rotulo {
+    font-family: var(--font-mono); font-size: 8.5px; letter-spacing:0.08em; text-transform:uppercase; color: var(--ink-soft);
+  }
+  .linha-escrever {
+    border: none; border-bottom: 1px solid var(--ink-soft); height: 17px; width: 100%;
+  }
+  .caixa {
+    border: 1px solid var(--line); background: var(--box); border-radius: 3px; min-height: 17px; width: 100%;
+  }
+
+  /* ---------- header do personagem ---------- */
+  .ficha-header { display:flex; flex-direction:column; gap: 10px; margin-bottom: 14px; }
+  .nome-linha { display:flex; align-items:flex-end; gap: 14px; }
+  .nome-linha .campo:first-child { flex: 3; }
+  .nome-linha input.nome-escrever {
+    font-family: var(--font-display); font-size: 21px; color: var(--ink); border:none; border-bottom: 1.6px solid var(--rust-deep);
+    padding-bottom: 4px; width:100%; background:transparent;
+  }
+  .header-grid { display:flex; gap: 14px; }
+  .header-grid .campo { flex: 1; }
+
+  /* ---------- grid genérico de N colunas ---------- */
+  .grid-7 { display:flex; gap: 8px; }
+  .grid-7 > div { flex:1; }
+  .grid-9 { display:flex; flex-wrap:wrap; gap: 8px; }
+  .grid-9 > div { flex: 1 1 100px; }
+  .grid-3 { display:flex; gap: 10px; }
+  .grid-3 > div { flex:1; }
+  .grid-4 { display:flex; gap: 10px; }
+  .grid-4 > div { flex:1; }
+
+  /* ---------- caixa de atributo ---------- */
+  .attr-box {
+    border: 1px solid var(--line); border-radius: 4px; background: var(--box); padding: 7px 6px 8px; text-align:center;
+  }
+  .attr-box .nome-attr { font-family: var(--font-mono); font-size: 8.5px; text-transform:uppercase; letter-spacing:0.06em; color: var(--ink-soft); margin-bottom: 4px; }
+  .attr-box .valor-attr {
+    border: 1px solid var(--line-soft); border-radius: 3px; background: #fff; height: 30px; margin-bottom: 4px;
+  }
+  .attr-box .nota-par { font-family: var(--font-mono); font-size: 6.6px; color: var(--brass); line-height:1.25; min-height: 16px; }
+
+  /* ---------- contadores (PV / Mana) ---------- */
+  .contador-box {
+    border: 1px solid var(--line); border-radius: 4px; background: var(--box); padding: 8px 10px; text-align:center;
+  }
+  .contador-box .lbl { font-family: var(--font-mono); font-size: 8.5px; text-transform:uppercase; letter-spacing:0.07em; color: var(--ink-soft); margin-bottom:6px; }
+  .contador-linha { display:flex; align-items:center; justify-content:center; gap:6px; }
+  .contador-linha .campo-num { width: 46px; height: 26px; border:1px solid var(--line-soft); background:#fff; border-radius:3px; }
+  .contador-linha .sep { font-family: var(--font-mono); color: var(--ink-faint); }
+  .contador-linha .maxfixo { font-family: var(--font-mono); font-size: 8.5px; color: var(--ink-faint); }
+
+  .pips-linha { display:flex; gap:8px; justify-content:center; margin-top: 2px; }
+  .pip-vazio { width:16px; height:16px; border-radius:50%; border: 1.4px solid var(--brass); display:inline-block; }
+
+  /* ---------- resumo de valores derivados ---------- */
+  .valores-grid { display:flex; flex-wrap:wrap; gap: 8px; }
+  .valor-box {
+    flex: 1 1 78px; border: 1px solid var(--line); border-radius: 4px; background: var(--box);
+    text-align:center; padding: 6px 4px 7px;
+  }
+  .valor-box .campo-num-lg { height: 24px; border:1px solid var(--line-soft); background:#fff; border-radius:3px; margin-bottom:4px; }
+  .valor-box .lbl-sm { font-family: var(--font-mono); font-size: 7px; text-transform:uppercase; letter-spacing:0.04em; color: var(--ink-soft); line-height:1.2; }
+
+  /* ---------- painel neutro ---------- */
+  .painel {
+    border: 1px solid var(--line); border-radius: 5px; background: var(--paper-2); padding: 9px 11px; margin-bottom: 10px;
+  }
+
+  .nota-regra {
+    font-family: var(--font-mono); font-size: 8px; color: var(--ink-soft); line-height:1.55; margin: 6px 0 0;
+  }
+  .nota-regra strong { color: var(--rust-deep); }
+
+  /* ---------- tabela de adornos ---------- */
+  table.adornos { width:100%; border-collapse: collapse; }
+  table.adornos th {
+    font-family: var(--font-mono); font-size: 7.5px; text-transform:uppercase; letter-spacing:0.05em; color: var(--ink-soft);
+    text-align:left; border-bottom: 1px solid var(--line); padding: 3px 6px;
+  }
+  table.adornos td {
+    border-bottom: 1px solid var(--line-soft); padding: 6px 6px; font-size: 11px;
+  }
+  table.adornos td.idx { font-family: var(--font-mono); color: var(--brass); width: 16px; }
+
+  /* ---------- equipamento ---------- */
+  .equip-grid { display:flex; flex-wrap:wrap; gap: 8px; }
+  .equip-slot { flex: 1 1 130px; border: 1px solid var(--line); border-radius:4px; background: var(--box); padding: 6px 9px 8px; }
+
+  /* ---------- linhas escrever múltiplas (talentos / anotações) ---------- */
+  .pauta { margin-top: 4px; }
+  .pauta .linha { border-bottom: 1px solid var(--line-soft); height: 20px; }
+
+  /* ---------- tabela de condições ---------- */
+  table.condicoes { width:100%; border-collapse: collapse; }
+  table.condicoes th {
+    font-family: var(--font-mono); font-size: 7.5px; text-transform:uppercase; letter-spacing:0.05em; color: var(--ink-soft);
+    text-align:left; border-bottom: 1px solid var(--line); padding: 3px 6px;
+  }
+  table.condicoes td { border-bottom: 1px solid var(--line-soft); padding: 7px 6px; height: 12px; }
+  table.condicoes td.c1 { width: 30%; }
+
+  /* ---------- santuário ---------- */
+  .santuario-grid { display:flex; gap: 12px; }
+  .santuario-grid .campo:first-child { flex: 1; }
+  .santuario-grid .campo:last-child { flex: 2; }
+
+  .rodape-pagina {
+    position: absolute; bottom: -10mm; left: 0; right: 0; text-align:center;
+    font-family: var(--font-mono); font-size: 7px; color: var(--ink-faint); letter-spacing: 0.08em;
+  }
+
+  .duas-col { display:flex; gap: 14px; }
+  .duas-col > div { flex:1; }
+
+  /* ---------- campos pré-preenchidos a partir da ficha interativa ---------- */
+  .preenchivel {
+    font-family: var(--font-mono); font-size: 12px; color: var(--rust-deep); font-weight: 600;
+    display:flex; align-items:center; padding: 0 2px 2px;
+  }
+  .linha-escrever.preenchivel, .caixa.preenchivel { justify-content: flex-start; }
+  .valor-attr.preenchivel { justify-content:center; font-size: 15px; height: 30px; }
+  .pip-cheio { background: var(--brass); }
+</style>
+</head>
+<body>
+
+<div class="barra-acoes">
+  <a href="ficha.html">← Ficha interativa</a>
+  <button class="principal" onclick="window.print()">⇩ Imprimir / Salvar como PDF</button>
+</div>
+
+<!-- ===================== PÁGINA 1 ===================== -->
+<div class="folha">
+  <div class="marca-dagua">Sina de Ferro · Ficha de Personagem</div>
+  <div class="topo-titulo">
+    <div class="t1">Ficha de Personagem</div>
+    <div class="t2">Sina de Ferro — pág. 1/2</div>
+  </div>
+
+  <!-- Cabeçalho -->
+  <div class="ficha-header">
+    <div class="nome-linha">
+      <div class="campo">
+        <span class="rotulo">Nome do Personagem</span>
+        <input class="nome-escrever" type="text" id="imp-nome">
+      </div>
+    </div>
+    <div class="header-grid">
+      <div class="campo"><span class="rotulo">Jogador(a)</span><div class="linha-escrever preenchivel" id="imp-jogador"></div></div>
+      <div class="campo"><span class="rotulo">Raça</span><div class="linha-escrever preenchivel" id="imp-raca"></div></div>
+      <div class="campo"><span class="rotulo">Classe</span><div class="linha-escrever preenchivel" id="imp-classe"></div></div>
+      <div class="campo" style="flex:0.6;"><span class="rotulo">Nível</span><div class="caixa preenchivel" id="imp-nivel" style="height:17px;"></div></div>
+    </div>
+  </div>
+
+  <!-- XP -->
+  <div class="bloco">
+    <div class="grid-3">
+      <div class="campo"><span class="rotulo">XP Atual (neste nível)</span><div class="linha-escrever preenchivel" id="imp-xpatual"></div></div>
+      <div class="campo"><span class="rotulo">XP p/ Próximo Nível</span><div class="linha-escrever preenchivel" id="imp-xpprox"></div></div>
+      <div class="campo"><span class="rotulo">Pontos de Sina (máx. 3)</span>
+        <div class="pips-linha" id="imp-sina"><span class="pip-vazio"></span><span class="pip-vazio"></span><span class="pip-vazio"></span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Atributos -->
+  <h2>Atributos</h2>
+  <div class="grid-7 bloco">
+    <div class="attr-box"><div class="nome-attr">Força</div><div class="valor-attr preenchivel" id="imp-attr-forca"></div></div>
+    <div class="attr-box"><div class="nome-attr">Vigor</div><div class="valor-attr preenchivel" id="imp-attr-vigor"></div></div>
+    <div class="attr-box"><div class="nome-attr">Velocidade</div><div class="valor-attr preenchivel" id="imp-attr-velocidade"></div></div>
+    <div class="attr-box"><div class="nome-attr">Atenção</div><div class="valor-attr preenchivel" id="imp-attr-atencao"></div></div>
+    <div class="attr-box"><div class="nome-attr">Vontade</div><div class="valor-attr preenchivel" id="imp-attr-vontade"></div></div>
+    <div class="attr-box"><div class="nome-attr">Intelecto</div><div class="valor-attr preenchivel" id="imp-attr-intelecto"></div></div>
+    <div class="attr-box"><div class="nome-attr">Talento</div><div class="valor-attr preenchivel" id="imp-attr-talento"></div></div>
+  </div>
+
+  <!-- Vida, Mana, Sina -->
+  <h2>Vida &amp; Mana</h2>
+  <div class="grid-3 bloco">
+    <div class="contador-box">
+      <div class="lbl">Pontos de Vida</div>
+      <div class="contador-linha"><div class="campo-num preenchivel" id="imp-pv-atual" style="justify-content:center;"></div><span class="sep">/</span><div class="campo-num preenchivel" id="imp-pv-max" style="justify-content:center;"></div></div>
+      
+    </div>
+    <div class="contador-box">
+      <div class="lbl">Mana</div>
+      <div class="contador-linha"><div class="campo-num preenchivel" id="imp-mana-atual" style="justify-content:center;"></div><span class="sep">/</span><div class="campo-num preenchivel" id="imp-mana-max" style="justify-content:center;"></div></div>
+      
+    </div>
+    <div class="contador-box">
+      <div class="lbl">Salva-Guarda — atributos</div>
+      <div class="grid-3" style="gap:5px;">
+        <div class="linha-escrever preenchivel" id="imp-salva1" style="height:18px; justify-content:center;"></div>
+        <div class="linha-escrever preenchivel" id="imp-salva2" style="height:18px; justify-content:center;"></div>
+      </div>
+      
+    </div>
+  </div>
+
+  <!-- Combate -->
+  <h2>Combate</h2>
+  <div class="bloco">
+    <h3>Bônus de armadura (some manualmente aos valores abaixo)</h3>
+    <div class="grid-3" style="margin-bottom:9px;">
+      <div class="campo"><span class="rotulo">Defesa</span><div class="caixa" style="height:18px;"></div></div>
+      <div class="campo"><span class="rotulo">RD Física</span><div class="caixa" style="height:18px;"></div></div>
+      <div class="campo"><span class="rotulo">RD Mágica</span><div class="caixa" style="height:18px;"></div></div>
+    </div>
+    <div class="valores-grid">
+      <div class="valor-box"><div class="campo-num-lg"></div><div class="lbl-sm">Defesa</div></div>
+      <div class="valor-box"><div class="campo-num-lg"></div><div class="lbl-sm">Iniciativa</div></div>
+      <div class="valor-box"><div class="campo-num-lg"></div><div class="lbl-sm">Esp. Inventário</div></div>
+      <div class="valor-box"><div class="campo-num-lg"></div><div class="lbl-sm">Limite Atributo</div></div>
+      <div class="valor-box"><div class="campo-num-lg"></div><div class="lbl-sm">RD Física</div></div>
+      <div class="valor-box"><div class="campo-num-lg"></div><div class="lbl-sm">RD Mágica</div></div>
+      <div class="valor-box"><div class="campo-num-lg"></div><div class="lbl-sm">Esquivar</div></div>
+      <div class="valor-box"><div class="campo-num-lg"></div><div class="lbl-sm">Bloquear</div></div>
+      <div class="valor-box"><div class="campo-num-lg"></div><div class="lbl-sm">Movimento</div></div>
+    </div>
+  </div>
+
+  <!-- Morte e Salva-Guarda -->
+  <h2>Morte &amp; Salva-Guarda</h2>
+  <div class="painel">
+    <div class="grid-3" style="margin-bottom:8px;">
+      <div class="campo"><span class="rotulo">Sobrevividas desde descanso</span><div class="caixa" style="height:18px;"></div></div>
+      <div class="campo"><span class="rotulo">DT do Salva-Guarda</span><div class="caixa" style="height:18px;"></div></div>
+      <div class="campo"><span class="rotulo">Penalidade acumulada</span><div class="linha-escrever"></div></div>
+    </div>
+    
+  </div>
+
+  
+</div>
+
+<!-- ===================== PÁGINA 2 ===================== -->
+<div class="folha">
+  <div class="marca-dagua">Sina de Ferro · Ficha de Personagem</div>
+  <div class="topo-titulo">
+    <div class="t1">Equipamento &amp; Registro</div>
+    <div class="t2">Sina de Ferro — pág. 2/2</div>
+  </div>
+
+  <!-- Recursos -->
+  <h2>Recursos</h2>
+  <div class="grid-3 bloco">
+    <div class="contador-box">
+      <div class="lbl">Coroas</div>
+      <div class="contador-linha"><div class="campo-num" style="width:70px;"></div></div>
+    </div>
+    <div class="contador-box">
+      <div class="lbl">Provisões</div>
+      <div class="contador-linha"><div class="campo-num" style="width:70px;"></div></div>
+    </div>
+    <div class="contador-box">
+      <div class="lbl">Santuário Vinculado</div>
+      <div class="linha-escrever" style="height:18px;"></div>
+    </div>
+  </div>
+
+  <!-- Santuário -->
+  <div class="bloco">
+    <div class="santuario-grid">
+      <div class="campo"><span class="rotulo">Nome do Santuário</span><div class="linha-escrever"></div></div>
+      <div class="campo"><span class="rotulo">Bônus fixo concedido</span><div class="linha-escrever"></div></div>
+    </div>
+  </div>
+
+  <!-- Equipamento -->
+  <h2>Equipamento</h2>
+  <div class="equip-grid bloco">
+    <div class="equip-slot"><span class="rotulo">Cabeça</span><div class="linha-escrever"></div></div>
+    <div class="equip-slot"><span class="rotulo">Corpo</span><div class="linha-escrever"></div></div>
+    <div class="equip-slot"><span class="rotulo">Mão Esquerda</span><div class="linha-escrever"></div></div>
+    <div class="equip-slot"><span class="rotulo">Mão Direita</span><div class="linha-escrever"></div></div>
+  </div>
+
+  <!-- Adornos (base expandida) -->
+  <h3 style="margin-top:2px;">Adornos</h3>
+  <table class="adornos bloco">
+    <thead><tr><th style="width:20px;"></th><th>Adorno</th><th style="width:38%;">Efeito / observação</th></tr></thead>
+    <tbody>
+      <tr><td class="idx">1</td><td></td><td></td></tr>
+      <tr><td class="idx">2</td><td></td><td></td></tr>
+      <tr><td class="idx">3</td><td></td><td></td></tr>
+      <tr><td class="idx">4</td><td></td><td></td></tr>
+      <tr><td class="idx">5</td><td></td><td></td></tr>
+      <tr><td class="idx">6</td><td></td><td></td></tr>
+      <tr><td class="idx">7</td><td></td><td></td></tr>
+      <tr><td class="idx">8</td><td></td><td></td></tr>
+    </tbody>
+  </table>
+
+  <!-- Condições -->
+  <h2>Condições Ativas</h2>
+  <table class="condicoes bloco">
+    <thead><tr><th class="c1">Condição</th><th>Efeito / duração</th></tr></thead>
+    <tbody>
+      <tr><td></td><td></td></tr>
+      <tr><td></td><td></td></tr>
+      <tr><td></td><td></td></tr>
+      <tr><td></td><td></td></tr>
+    </tbody>
+  </table>
+
+  <!-- Talentos e Magias conhecidas (espaço livre, sem catálogo) -->
+  <div class="duas-col bloco">
+    <div>
+      <h2>Talentos &amp; Poderes</h2>
+      <div class="pauta">
+        <div class="linha"></div><div class="linha"></div><div class="linha"></div>
+        <div class="linha"></div><div class="linha"></div><div class="linha"></div>
+        <div class="linha"></div><div class="linha"></div>
+      </div>
+    </div>
+    <div>
+      <h2>Magias Conhecidas</h2>
+      <div class="pauta">
+        <div class="linha"></div><div class="linha"></div><div class="linha"></div>
+        <div class="linha"></div><div class="linha"></div><div class="linha"></div>
+        <div class="linha"></div><div class="linha"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Anotações -->
+  <h2>Anotações da Campanha</h2>
+  <div class="pauta">
+    <div class="linha"></div><div class="linha"></div><div class="linha"></div>
+    <div class="linha"></div><div class="linha"></div>
+  </div>
+
+  
+</div>
+
+</body>
+</html>

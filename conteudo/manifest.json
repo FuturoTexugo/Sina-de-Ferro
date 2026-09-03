@@ -1,0 +1,152 @@
+[
+  {
+    "titulo": "Raças",
+    "categoria": "Geral",
+    "caminho": "conteudo/Racas.md"
+  },
+  {
+    "titulo": "Classes",
+    "categoria": "Geral",
+    "caminho": "conteudo/Classes.md"
+  },
+  {
+    "titulo": "Talentos — Lutador",
+    "categoria": "Talentos",
+    "caminho": "conteudo/Talentos/Página 1 Lutador.md"
+  },
+  {
+    "titulo": "Talentos — Conjurador",
+    "categoria": "Talentos",
+    "caminho": "conteudo/Talentos/Página 2 Conjurador.md"
+  },
+  {
+    "titulo": "Talentos — Rastreador",
+    "categoria": "Talentos",
+    "caminho": "conteudo/Talentos/Página 3 Rastreador.md"
+  },
+  {
+    "titulo": "Talentos — Criador",
+    "categoria": "Talentos",
+    "caminho": "conteudo/Talentos/Página 4 Criador.md"
+  },
+  {
+    "titulo": "Talentos — Poderes Heroicos",
+    "categoria": "Talentos",
+    "caminho": "conteudo/Talentos/Poderes Heroicos.md"
+  },
+  {
+    "titulo": "Magias de Nível I",
+    "categoria": "Magias",
+    "caminho": "conteudo/Magias/Magias de nivel I.md"
+  },
+  {
+    "titulo": "Magias de Nível II",
+    "categoria": "Magias",
+    "caminho": "conteudo/Magias/Magias de nivel II.md"
+  },
+  {
+    "titulo": "Magias de Nível III",
+    "categoria": "Magias",
+    "caminho": "conteudo/Magias/Magias de nivel III.md"
+  },
+  {
+    "titulo": "Magias do Flagelo",
+    "categoria": "Magias",
+    "caminho": "conteudo/Magias do flagelo.md"
+  },
+  {
+    "titulo": "Formas Animais",
+    "categoria": "Magias",
+    "caminho": "conteudo/Formas animais.md"
+  },
+  {
+    "titulo": "Invocados",
+    "categoria": "Geral",
+    "caminho": "conteudo/Invocados.md"
+  },
+  {
+    "titulo": "Armas",
+    "categoria": "Itens",
+    "caminho": "conteudo/Itens/Armas.md"
+  },
+  {
+    "titulo": "Armaduras",
+    "categoria": "Itens",
+    "caminho": "conteudo/Itens/Armaduras.md"
+  },
+  {
+    "titulo": "Capacetes",
+    "categoria": "Itens",
+    "caminho": "conteudo/Itens/Capacetes.md"
+  },
+  {
+    "titulo": "Adornos",
+    "categoria": "Itens",
+    "caminho": "conteudo/Itens/Adornos.md"
+  },
+  {
+    "titulo": "Consumíveis",
+    "categoria": "Itens",
+    "caminho": "conteudo/Itens/Consumiveis.md"
+  },
+  {
+    "titulo": "Materiais e Itens de Ofício",
+    "categoria": "Itens",
+    "caminho": "conteudo/Itens/Materiais e Itens de oficio.md"
+  },
+  {
+    "titulo": "Itens Criáveis",
+    "categoria": "Itens",
+    "caminho": "conteudo/Itens Criaveis.md"
+  },
+  {
+    "titulo": "Santuários",
+    "categoria": "Geral",
+    "caminho": "conteudo/Santuarios.md"
+  },
+  {
+    "titulo": "Bestiário — Tags de Criaturas",
+    "categoria": "Bestiario",
+    "caminho": "conteudo/Bestiario/0. Tags de Criaturas.md"
+  },
+  {
+    "titulo": "Bestiário — Animais",
+    "categoria": "Bestiario",
+    "caminho": "conteudo/Bestiario/1. Animais.md"
+  },
+  {
+    "titulo": "Bestiário — Seguidores da Ruína",
+    "categoria": "Bestiario",
+    "caminho": "conteudo/Bestiario/2. Seguidores da Ruina.md"
+  },
+  {
+    "titulo": "Bestiário — Bandidos",
+    "categoria": "Bestiario",
+    "caminho": "conteudo/Bestiario/3. Bandidos.md"
+  },
+  {
+    "titulo": "Bestiário — Monstros",
+    "categoria": "Bestiario",
+    "caminho": "conteudo/Bestiario/4. Monstros.md"
+  },
+  {
+    "titulo": "Bestiário — Mortos-vivos",
+    "categoria": "Bestiario",
+    "caminho": "conteudo/Bestiario/5. Mortos-vivos.md"
+  },
+  {
+    "titulo": "Bestiário — Tribos",
+    "categoria": "Bestiario",
+    "caminho": "conteudo/Bestiario/6. Tribos.md"
+  },
+  {
+    "titulo": "Bestiário — Reinos",
+    "categoria": "Bestiario",
+    "caminho": "conteudo/Bestiario/7. Reinos.md"
+  },
+  {
+    "titulo": "Bestiário — Drops",
+    "categoria": "Bestiario",
+    "caminho": "conteudo/Bestiario/9 Drops.md"
+  }
+]
