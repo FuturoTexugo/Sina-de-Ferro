@@ -36,26 +36,6 @@ const Router = (() => {
     Sidebar.marcarAtivo();
     fecharSidebarMobile();
 
-    if (rota === "#/ficha") {
-      renderizarFicha();
-      return;
-    }
-
-    if (rota === "#/roleta") {
-      renderizarRoleta();
-      return;
-    }
-
-    if (rota === "#/ruina") {
-      renderizarRuina();
-      return;
-    }
-
-    if (rota === "#/licenca") {
-      await MdRender.renderizar(CAMINHO_LICENCA);
-      return;
-    }
-
     if (rota.startsWith("#/conteudo/")) {
       const caminho = "conteudo/" + decodeURIComponent(rota.replace("#/conteudo/", ""));
       await MdRender.renderizar(caminho);
